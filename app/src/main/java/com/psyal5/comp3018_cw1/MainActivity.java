@@ -3,6 +3,7 @@ package com.psyal5.comp3018_cw1;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -16,9 +17,12 @@ import android.widget.SimpleCursorAdapter;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.IOException;
+
 public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_MANAGE_ALL_FILES_ACCESS = 100;
+    private MediaPlayer mediaPlayer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,9 +63,25 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("Range") String uri =
                     c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
             Log.d("LEE", uri);
-// do something with the selected uri string...
+            playMusicFile(uri);
         }
         });
+    }
+
+    private void playMusicFile(String filePath) {
+        if (mediaPlayer != null) {
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+
+        mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(filePath);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            Log.e("LEE", "Error playing music: " + e.getMessage());
+        }
     }
 
     @Override

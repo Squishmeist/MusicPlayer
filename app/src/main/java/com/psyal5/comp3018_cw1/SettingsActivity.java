@@ -9,16 +9,19 @@ import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
-public class MainActivity extends AppCompatActivity {
+public class SettingsActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_settings);
+
         // Initialize and assign variable
         BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
+
         // Set Home selected
-        bottomNavigationView.setSelectedItemId(R.id.main);
+        bottomNavigationView.setSelectedItemId(R.id.settings);
+
         // Perform item selected listener
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -26,6 +29,8 @@ public class MainActivity extends AppCompatActivity {
                 int itemId = item.getItemId();
                 if (itemId == R.id.main) {
                     // Start Main Activity
+                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    overridePendingTransition(0, 0);
                     return true;
                 } else if (itemId == R.id.player) {
                     // Start Player Activity
@@ -34,8 +39,6 @@ public class MainActivity extends AppCompatActivity {
                     return true;
                 } else if (itemId == R.id.settings) {
                     // Start Settings Activity
-                    startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
-                    overridePendingTransition(0, 0);
                     return true;
                 } else {
                     return false;

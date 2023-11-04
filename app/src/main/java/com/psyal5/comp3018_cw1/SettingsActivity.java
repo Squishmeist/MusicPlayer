@@ -16,25 +16,20 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        // Initialize and assign variable
-        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation);
-
-        // Set Home selected
-        bottomNavigationView.setSelectedItemId(R.id.settings);
-
-        // Perform item selected listener
+        BottomNavigationView bottomNavigationView=findViewById(R.id.bottom_navigation); // Initialize and assign variable
+        bottomNavigationView.setSelectedItemId(R.id.settings); // Set selected screen on navbar
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemId = item.getItemId();
                 if (itemId == R.id.main) {
                     // Start Main Activity
-                    startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                    startActivity(new Intent(SettingsActivity.this, MainActivity.class));
                     overridePendingTransition(0, 0);
                     return true;
                 } else if (itemId == R.id.player) {
                     // Start Player Activity
-                    startActivity(new Intent(getApplicationContext(), PlayerActivity.class));
+                    startActivity(new Intent(SettingsActivity.this, PlayerActivity.class));
                     overridePendingTransition(0, 0);
                     return true;
                 } else if (itemId == R.id.settings) {
@@ -44,6 +39,6 @@ public class SettingsActivity extends AppCompatActivity {
                     return false;
                 }
             }
-        });
+        }); // Perform item selected listener
     }
 }

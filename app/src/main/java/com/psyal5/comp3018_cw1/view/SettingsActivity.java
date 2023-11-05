@@ -1,4 +1,4 @@
-package com.psyal5.comp3018_cw1;
+package com.psyal5.comp3018_cw1.view;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.psyal5.comp3018_cw1.R;
 
 public class SettingsActivity extends AppCompatActivity {
 

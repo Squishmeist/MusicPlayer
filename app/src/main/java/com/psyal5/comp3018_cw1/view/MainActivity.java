@@ -1,7 +1,8 @@
-package com.psyal5.comp3018_cw1;
+package com.psyal5.comp3018_cw1.view;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,8 +16,11 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.psyal5.comp3018_cw1.R;
+import com.psyal5.comp3018_cw1.viewmodel.MainViewModel;
 
 public class MainActivity extends AppCompatActivity {
+    private MainViewModel mainViewModel;
     private static final int REQUEST_MANAGE_ALL_FILES_ACCESS = 100;
 
     @Override
@@ -24,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.main);
         bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
@@ -79,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("Range") String selectedSongURI = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
             Log.d("LEE", selectedSongURI);
 
-            CurrentSongManager.setSongUri(selectedSongURI);
+            mainViewModel.setSongUri(selectedSongURI);
             startActivity(new Intent(MainActivity.this, PlayerActivity.class));
         });
     }

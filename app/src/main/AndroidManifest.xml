@@ -16,16 +16,15 @@
         android:theme="@style/Theme.Comp3018_cw1"
         tools:targetApi="33">
         <activity
-            android:name=".MainActivity"
+            android:name=".view.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".ListActivity"></activity>
-        <activity android:name=".PlayerActivity"></activity>
-        <activity android:name=".SettingsActivity"></activity>
+        <activity android:name=".view.PlayerActivity"></activity>
+        <activity android:name=".view.SettingsActivity"></activity>
     </application>
 
 </manifest>

@@ -1,9 +1,13 @@
-package com.psyal5.comp3018_cw1;
+package com.psyal5.comp3018_cw1.viewmodel.data;
 
 import android.app.Activity;
 import android.content.Intent;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.psyal5.comp3018_cw1.R;
+import com.psyal5.comp3018_cw1.view.MainActivity;
+import com.psyal5.comp3018_cw1.view.PlayerActivity;
+import com.psyal5.comp3018_cw1.view.SettingsActivity;
 
 public class MenuNavigation {
     public static void setupBottomNavigation(Activity activity) {

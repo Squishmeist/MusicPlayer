@@ -1,0 +1,12 @@
+<!-- media_controls_menu.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/play"
+        android:title="Play" />
+    <item
+        android:id="@+id/skipForward"
+        android:title="Skip Forward" />
+    <item
+        android:id="@+id/skipBackward"
+        android:title="Skip Backward" />
+</menu>

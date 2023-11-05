@@ -29,13 +29,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.main);
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == R.id.main) {
                 return true;
-            } else if (itemId == R.id.player) {
+            }else if (itemId == R.id.player) {
                 startActivity(new Intent(MainActivity.this, PlayerActivity.class));
                 overridePendingTransition(0, 0);
                 return true;
@@ -58,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.d("CW1", "Request the MANAGE_EXTERNAL_STORAGE permission");
             Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-            startActivityForResult(intent, REQUEST_MANAGE_ALL_FILES_ACCESS);
+            startActivity(intent);
         }
     }
 
@@ -79,10 +80,10 @@ public class MainActivity extends AppCompatActivity {
                 new int[]{android.R.id.text1}
         ));
 
-        lv.setOnItemClickListener((myAdapter, myView, myItemInt, mylng) -> {
+        lv.setOnItemClickListener((myAdapter, myView, myItemInt, myIng) -> {
             Cursor c = (Cursor) lv.getItemAtPosition(myItemInt);
             @SuppressLint("Range") String selectedSongURI = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
-            Log.d("LEE", selectedSongURI);
+            Log.d("CW1", selectedSongURI);
 
             mainViewModel.setSongUri(selectedSongURI);
             startActivity(new Intent(MainActivity.this, PlayerActivity.class));

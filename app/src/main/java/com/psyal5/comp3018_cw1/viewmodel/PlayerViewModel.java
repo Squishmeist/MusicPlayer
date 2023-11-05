@@ -9,7 +9,6 @@ import com.psyal5.comp3018_cw1.viewmodel.data.CurrentSongManager;
 
 
 public class PlayerViewModel extends ViewModel {
-    private MutableLiveData<String> songUri = new MutableLiveData<>();
     private MutableLiveData<String> songName = new MutableLiveData<>();
 
     public LiveData<String> getSongName() {
@@ -17,8 +16,8 @@ public class PlayerViewModel extends ViewModel {
         return songName;
     }
 
-    public LiveData<String> getSongUri() {
-        songUri.setValue(CurrentSongManager.getSongUri());
-        return songUri;
+    public String getState(){
+        return CurrentSongManager.getState();
     }
+
 }

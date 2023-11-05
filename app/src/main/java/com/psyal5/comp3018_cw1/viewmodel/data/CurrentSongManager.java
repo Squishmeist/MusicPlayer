@@ -9,12 +9,11 @@ import java.io.File;
 public class CurrentSongManager {
     private static String songUri = "";
     private static String songName = "";
-    private static MP3Player mp3Player = new MP3Player();
+    private static final MP3Player mp3Player = new MP3Player();
 
     public static void setSongUri(String uri) {
         songUri = uri;
         songName = getSongNameFromUri(songUri);
-
         mp3Player.stop();
         mp3Player.load(songUri, 1.0f); // Load the song with normal speed
         mp3Player.play();
@@ -28,6 +27,7 @@ public class CurrentSongManager {
         String filePath = uri.getPath();
 
         // Create a File object using the file path
+        assert filePath != null;
         File file = new File(filePath);
 
         // Retrieve the name of the file
@@ -48,6 +48,10 @@ public class CurrentSongManager {
 
     public static String getSongName() {
         return songName;
+    }
+
+    public static String getState(){
+        return String.valueOf(mp3Player.getState());
     }
 
 }

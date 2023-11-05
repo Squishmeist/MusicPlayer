@@ -19,6 +19,16 @@ public class CurrentSongManager {
         mp3Player.play();
     }
 
+    public static void pauseSong(){
+        mp3Player.pause();
+    }
+
+    public static void playSong(){
+        mp3Player.stop();
+        mp3Player.load(songUri, 1.0f); // Load the song with normal speed
+        mp3Player.play();
+    }
+
     private static String getSongNameFromUri(String songUri) {
         // Convert the URI string to a Uri object
         Uri uri = Uri.parse(songUri);

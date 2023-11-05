@@ -1,70 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".view.PlayerActivity">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Grey box with "Test" TextView -->
+    <data>
+        <variable
+            name="playerViewModel"
+            type="com.psyal5.comp3018_cw1.viewmodel.PlayerViewModel" />
+    </data>
+
     <RelativeLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#CCCCCC"
-        android:padding="20dp"
-        android:layout_centerInParent="true">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".view.PlayerActivity">
 
-        <TextView
-            android:id="@+id/songNameTextView"
+        <!-- Grey box with "Test" TextView -->
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="50sp"
-            android:textStyle="bold"
-            android:layout_centerInParent="true" />
+            android:background="#CCCCCC"
+            android:padding="20dp"
+            android:layout_centerInParent="true">
+
+            <TextView
+                android:id="@+id/songNameTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{playerViewModel.songName}"
+                android:textSize="50sp"
+                android:textStyle="bold"
+                android:layout_centerInParent="true" />
+        </RelativeLayout>
+
+        <!-- Linear layout with ImageButtons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/bottom_navigation"
+            android:layout_marginTop="-419dp"
+            android:layout_marginBottom="204dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <!-- Add your ImageButtons here -->
+            <ImageButton
+                android:id="@+id/previousButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_previous_foreground" />
+
+            <ImageButton
+                android:id="@+id/statusButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="20dp"
+                android:background="@android:color/transparent"
+                android:src="@{playerViewModel.isPlaying ? @drawable/ic_pause_foreground : @drawable/ic_play_foreground}"
+                android:onClick="@{()->playerViewModel.onClickStatusButton()}"/>
+
+            <ImageButton
+                android:id="@+id/nextButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="20dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_next_foreground" />
+        </LinearLayout>
+
+        <com.google.android.material.bottomnavigation.BottomNavigationView
+            android:id="@+id/bottom_navigation"
+            android:layout_width="match_parent"
+            android:layout_height="45dp"
+            android:layout_alignParentBottom="true"
+            app:menu="@menu/menu_navigation" />
+
     </RelativeLayout>
-
-    <!-- Linear layout with ImageButtons -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/bottom_navigation"
-        android:layout_marginTop="-419dp"
-        android:layout_marginBottom="204dp"
-        android:gravity="center"
-        android:orientation="horizontal">
-
-        <!-- Add your ImageButtons here -->
-        <ImageButton
-            android:id="@+id/previousButton"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_previous_foreground" />
-
-        <ImageButton
-            android:id="@+id/statusButton"
-            android:onClick="onStatusButtonClick"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="20dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_play_foreground" />
-
-        <ImageButton
-            android:id="@+id/nextButton"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginStart="20dp"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_next_foreground" />
-    </LinearLayout>
-
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation"
-        android:layout_width="match_parent"
-        android:layout_height="45dp"
-        android:layout_alignParentBottom="true"
-        app:menu="@menu/menu_navigation" />
-
-</RelativeLayout>
+</layout>

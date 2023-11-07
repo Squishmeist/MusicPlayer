@@ -8,8 +8,8 @@ android {
 
     defaultConfig {
         applicationId = "com.psyal5.comp3018_cw1"
-        minSdk = 33
-        targetSdk = 33
+        minSdk = 32
+        targetSdk = 32
         versionCode = 1
         versionName = "1.0"
 

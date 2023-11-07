@@ -32,66 +32,67 @@ public class MainActivity extends AppCompatActivity {
     private static final int REQUEST_MANAGE_ALL_FILES_ACCESS = 100;
     // A flag to check if the Activity is currently bound to the service.
     private boolean isBound = false;
-    // A tool that helps in scheduling tasks to run at some future time.
-    private Handler handler = new Handler();
+    private ServiceConnection serviceConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        mainViewModel = new ViewModelProvider(MainActivity.this).get(MainViewModel.class);
         binding.setMainViewModel(mainViewModel);
         binding.setLifecycleOwner(this);
 
-        if (!isBound) {
-            Intent intent = new Intent(this, MusicService.class);
-            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        }
+        bindMusicService();
+        setupBottomNavigation();
+    }
 
+    private void setupBottomNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.main);
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.main) {
-                return true;
-            }else if (itemId == R.id.player) {
-                startActivity(new Intent(MainActivity.this, PlayerActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
-            } else if (itemId == R.id.settings) {
-                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
-            } else {
-                return false;
-            }
+            return handleBottomNavigationActions(item.getItemId());
         });
-
-        checkAndRequestPermission();
     }
 
-
-    // A bridge or listener between the MainActivity and the MyService.
-    // Triggered when the service is successfully bound
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // Linking the service to our myService variable.
-            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-            MusicService musicService = binder.getService();
-            mainViewModel.setMusicService(musicService);
-            // Flag that the binding is successful.
-            isBound = true;
+    private boolean handleBottomNavigationActions(int itemId) {
+        // Handle different navigation options
+        if (itemId == R.id.player) {
+            startActivity(new Intent(MainActivity.this, PlayerActivity.class));
+            overridePendingTransition(0, 0);
+            return true;
+        } else if (itemId == R.id.settings) {
+            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+            overridePendingTransition(0, 0);
+            return true;
+        } else {
+            return false;
         }
-        //Triggered if the service unexpectedly disconnects
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            // Flagging that the binding is no longer active.
-            isBound = false;
-        }
-    };
+    }
 
+    private void bindMusicService() {
+        // A bridge or listener between the MainActivity and the MusicService.
+        serviceConnection = new ServiceConnection() {
+            @Override  // Triggered when the service is successfully bound
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                // Linking the service to musicService variable.
+                MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+                MusicService musicService = binder.getService();
+                mainViewModel.setMusicService(musicService);
+                isBound = true; // Flag that the binding is successful.
+                checkAndRequestPermission();
+            }
+            @Override //Triggered if the service unexpectedly disconnects
+            public void onServiceDisconnected(ComponentName name) {
+                isBound = false; // Flagging that the binding is no longer active.
+            }
+        };
+
+        if (!isBound) {
+            Intent intent = new Intent(MainActivity.this, MusicService.class);
+            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
+    }
 
 
     private void checkAndRequestPermission() {
@@ -100,8 +101,7 @@ public class MainActivity extends AppCompatActivity {
             readMusicFromFolder();
         } else {
             Log.d("CW1", "Request the MANAGE_EXTERNAL_STORAGE permission");
-            Intent intent = new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-            startActivity(intent);
+            startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
         }
     }
 
@@ -130,8 +130,7 @@ public class MainActivity extends AppCompatActivity {
             if (isBound) {  // Add a null check for musicService
                 Log.d("CW1", "song selected");
                 mainViewModel.setSongUri(selectedSongURI);
-                Intent playerIntent = new Intent(MainActivity.this, PlayerActivity.class);
-                startActivity(playerIntent);
+                startActivity(new Intent(MainActivity.this, PlayerActivity.class));
             }
         });
     }
@@ -152,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        mainViewModel = null;
         // Ensuring the Activity unbinds from the service properly when it's about to be destroyed.
         if (isBound) {
             unbindService(serviceConnection);

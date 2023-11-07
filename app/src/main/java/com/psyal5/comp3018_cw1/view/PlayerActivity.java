@@ -9,10 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
-import android.util.Log;
-import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.psyal5.comp3018_cw1.R;
@@ -22,40 +21,84 @@ import com.psyal5.comp3018_cw1.viewmodel.PlayerViewModel;
 
 public class PlayerActivity extends AppCompatActivity {
     private PlayerViewModel playerViewModel;
-    // Represents the MyService that the Activity will communicate with.
-    private MusicService musicService;
-    // A flag to check if the Activity is currently bound to the service.
     private boolean isBound = false;
-    // A tool that helps in scheduling tasks to run at some future time.
-    private Handler handler = new Handler();
+    private ServiceConnection serviceConnection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        ActivityPlayerBinding binding= DataBindingUtil.setContentView(this, R.layout.activity_player);
-        // Create an instance of PlayerViewModel
+        ActivityPlayerBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_player);
         playerViewModel = new ViewModelProvider(this).get(PlayerViewModel.class);
-        // Set the ViewModel to the binding
         binding.setPlayerViewModel(playerViewModel);
         binding.setLifecycleOwner(this);
+        bindMusicService();
+        observeViewModel();
+        setupBottomNavigation();
+    }
 
+    private void setupBottomNavigation() {
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.player);
         bottomNavigationView.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.main) {
-                startActivity(new Intent(PlayerActivity.this, MainActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
-            }else if (itemId == R.id.player) {
-                return true;
-            } else if (itemId == R.id.settings) {
-                startActivity(new Intent(PlayerActivity.this, SettingsActivity.class));
-                overridePendingTransition(0, 0);
-                return true;
+            return handleBottomNavigationActions(item.getItemId());
+        });
+    }
+
+    private boolean handleBottomNavigationActions(int itemId) {
+        // Handle different navigation options
+        if (itemId == R.id.main) {
+            startActivity(new Intent(PlayerActivity.this, MainActivity.class));
+            overridePendingTransition(0, 0);
+            return true;
+        } else if (itemId == R.id.settings) {
+            startActivity(new Intent(PlayerActivity.this, SettingsActivity.class));
+            overridePendingTransition(0, 0);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    private void bindMusicService() {
+        // A bridge or listener between the MainActivity and the MusicService.
+        serviceConnection = new ServiceConnection() {
+            @Override  // Triggered when the service is successfully bound
+            public void onServiceConnected(ComponentName className, IBinder service) {
+                // Linking the service to musicService variable.
+                MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+                MusicService musicService = binder.getService();
+                playerViewModel.setMusicService(musicService);
+                isBound = true; // Flag that the binding is successful.
+            }
+
+            @Override //Triggered if the service unexpectedly disconnects
+            public void onServiceDisconnected(ComponentName name) {
+                isBound = false; // Flagging that the binding is no longer active.
+            }
+        };
+
+        if (!isBound) {
+            Intent intent = new Intent(PlayerActivity.this, MusicService.class);
+            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
+    }
+
+
+    private void observeViewModel() {
+        playerViewModel.getSongName().observe(this, s -> {
+            // Update song name UI using data binding or findViewById
+            TextView songName = findViewById(R.id.songNameTextView);
+            songName.setText(s);
+        });
+
+        playerViewModel.getIsPlaying().observe(this, isPlaying -> {
+            // Update status button UI based on isPlaying using data binding or findViewById
+            ImageButton statusButton = findViewById(R.id.statusButton);
+            if (isPlaying) {
+                statusButton.setImageResource(R.drawable.ic_pause_foreground);
             } else {
-                return false;
+                statusButton.setImageResource(R.drawable.ic_play_foreground);
             }
         });
     }
@@ -63,29 +106,10 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Ensuring the Activity unbinds from the service properly when it's about to be destroyed.
+        playerViewModel = null;
         if (isBound) {
             unbindService(serviceConnection);
             isBound = false;
         }
     }
-
-    // A bridge or listener between the MainActivity and the MyService.
-    // Triggered when the service is successfully bound
-    private ServiceConnection serviceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // Linking the service to our myService variable.
-            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-            musicService = binder.getService();
-            // Flag that the binding is successful.
-            isBound = true;
-        }
-        //Triggered if the service unexpectedly disconnects
-        @Override
-        public void onServiceDisconnected(ComponentName name) {
-            // Flagging that the binding is no longer active.
-            isBound = false;
-        }
-    };
 }

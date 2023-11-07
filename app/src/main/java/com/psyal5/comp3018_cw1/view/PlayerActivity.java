@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -19,22 +20,27 @@ import com.psyal5.comp3018_cw1.databinding.ActivityPlayerBinding;
 import com.psyal5.comp3018_cw1.model.MusicService;
 import com.psyal5.comp3018_cw1.viewmodel.PlayerViewModel;
 
+
 public class PlayerActivity extends AppCompatActivity {
     private PlayerViewModel playerViewModel;
     private boolean isBound = false;
-    private ServiceConnection serviceConnection;
+    private static final String TAG = "CW1";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.d(TAG, "On create");
+
         ActivityPlayerBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_player);
-        playerViewModel = new ViewModelProvider(this).get(PlayerViewModel.class);
+        playerViewModel = new ViewModelProvider(PlayerActivity.this).get(PlayerViewModel.class);
         binding.setPlayerViewModel(playerViewModel);
         binding.setLifecycleOwner(this);
-        bindMusicService();
-        observeViewModel();
+
         setupBottomNavigation();
+        if(isBound){
+            observeViewModel();
+        }
     }
 
     private void setupBottomNavigation() {
@@ -60,31 +66,6 @@ public class PlayerActivity extends AppCompatActivity {
         }
     }
 
-    private void bindMusicService() {
-        // A bridge or listener between the MainActivity and the MusicService.
-        serviceConnection = new ServiceConnection() {
-            @Override  // Triggered when the service is successfully bound
-            public void onServiceConnected(ComponentName className, IBinder service) {
-                // Linking the service to musicService variable.
-                MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-                MusicService musicService = binder.getService();
-                playerViewModel.setMusicService(musicService);
-                isBound = true; // Flag that the binding is successful.
-            }
-
-            @Override //Triggered if the service unexpectedly disconnects
-            public void onServiceDisconnected(ComponentName name) {
-                isBound = false; // Flagging that the binding is no longer active.
-            }
-        };
-
-        if (!isBound) {
-            Intent intent = new Intent(PlayerActivity.this, MusicService.class);
-            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        }
-    }
-
-
     private void observeViewModel() {
         playerViewModel.getSongName().observe(this, s -> {
             // Update song name UI using data binding or findViewById
@@ -103,13 +84,39 @@ public class PlayerActivity extends AppCompatActivity {
         });
     }
 
+    public ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override  // Triggered when the service is successfully bound
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.d(TAG, "onServiceConnected");
+            // Linking the service to musicService variable.
+            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+            MusicService musicService = binder.getService();
+            Log.d(TAG, "isBound set to true");
+            isBound = true; // Flag that the binding is successful.
+            playerViewModel.setMusicService(musicService);
+        }
+        @Override //Triggered if the service unexpectedly disconnects
+        public void onServiceDisconnected(ComponentName name) {
+            isBound = false; // Flagging that the binding is no longer active.
+        }
+    };
+
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        playerViewModel = null;
-        if (isBound) {
+    protected void onStart(){
+        Log.d(TAG, "OnStart called");
+        super.onStart();
+        Intent intent = new Intent(this, MusicService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop(){
+        Log.d(TAG, "OnStop called");
+        super.onStop();
+        if(isBound){
             unbindService(serviceConnection);
             isBound = false;
         }
+        playerViewModel = null;
     }
 }

@@ -13,7 +13,6 @@ import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.provider.Settings;
@@ -29,22 +28,23 @@ import com.psyal5.comp3018_cw1.model.MusicService;
 
 public class MainActivity extends AppCompatActivity {
     private MainViewModel mainViewModel;
-    private static final int REQUEST_MANAGE_ALL_FILES_ACCESS = 100;
-    // A flag to check if the Activity is currently bound to the service.
     private boolean isBound = false;
-    private ServiceConnection serviceConnection;
+    private static final String TAG = "CW1";
+    private static final int REQUEST_MANAGE_ALL_FILES_ACCESS = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Log.d(TAG, "On create");
 
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mainViewModel = new ViewModelProvider(MainActivity.this).get(MainViewModel.class);
         binding.setMainViewModel(mainViewModel);
         binding.setLifecycleOwner(this);
 
-        bindMusicService();
         setupBottomNavigation();
+        checkAndRequestPermission();
     }
 
     private void setupBottomNavigation() {
@@ -70,37 +70,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void bindMusicService() {
-        // A bridge or listener between the MainActivity and the MusicService.
-        serviceConnection = new ServiceConnection() {
-            @Override  // Triggered when the service is successfully bound
-            public void onServiceConnected(ComponentName className, IBinder service) {
-                // Linking the service to musicService variable.
-                MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-                MusicService musicService = binder.getService();
-                mainViewModel.setMusicService(musicService);
-                isBound = true; // Flag that the binding is successful.
-                checkAndRequestPermission();
-            }
-            @Override //Triggered if the service unexpectedly disconnects
-            public void onServiceDisconnected(ComponentName name) {
-                isBound = false; // Flagging that the binding is no longer active.
-            }
-        };
-
-        if (!isBound) {
-            Intent intent = new Intent(MainActivity.this, MusicService.class);
-            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-        }
-    }
-
-
     private void checkAndRequestPermission() {
         if (Environment.isExternalStorageManager()) {
-            Log.d("CW1", "The app already has the MANAGE_EXTERNAL_STORAGE permission");
+            Log.d(TAG, "The app already has the MANAGE_EXTERNAL_STORAGE permission");
             readMusicFromFolder();
         } else {
-            Log.d("CW1", "Request the MANAGE_EXTERNAL_STORAGE permission");
+            Log.d(TAG, "Request the MANAGE_EXTERNAL_STORAGE permission");
             startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
         }
     }
@@ -114,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
                 null,
                 null
         );
+
         lv.setAdapter(new SimpleCursorAdapter(
                 this,
                 android.R.layout.simple_list_item_1,
@@ -125,37 +101,61 @@ public class MainActivity extends AppCompatActivity {
         lv.setOnItemClickListener((myAdapter, myView, myItemInt, myIng) -> {
             Cursor c = (Cursor) lv.getItemAtPosition(myItemInt);
             @SuppressLint("Range") String selectedSongURI = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
-            Log.d("CW1", selectedSongURI);
 
-            if (isBound) {  // Add a null check for musicService
-                Log.d("CW1", "song selected");
+            if(isBound){
+                Log.d(TAG, "songSelected MusicService launched");
                 mainViewModel.setSongUri(selectedSongURI);
-                startActivity(new Intent(MainActivity.this, PlayerActivity.class));
             }
+
         });
     }
+
+    public ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override  // Triggered when the service is successfully bound
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            Log.d(TAG, "onServiceConnected");
+            // Linking the service to musicService variable.
+            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+            MusicService musicService = binder.getService();
+            Log.d(TAG, "isBound set to true");
+            isBound = true; // Flag that the binding is successful.
+            mainViewModel.setMusicService(musicService);
+        }
+        @Override //Triggered if the service unexpectedly disconnects
+        public void onServiceDisconnected(ComponentName name) {
+            isBound = false; // Flagging that the binding is no longer active.
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_MANAGE_ALL_FILES_ACCESS) {
             if (Environment.isExternalStorageManager()) {
-                Log.d("CW1", "Permission granted; proceed with accessing external storage");
+                Log.d(TAG, "Permission granted; proceed with accessing external storage");
                 readMusicFromFolder();
             } else {
-                Log.d("CW1", "Permission denied; handle accordingly or inform the user");
+                Log.d(TAG, "Permission denied; handle accordingly or inform the user");
             }
         }
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        mainViewModel = null;
-        // Ensuring the Activity unbinds from the service properly when it's about to be destroyed.
-        if (isBound) {
+    protected void onStart(){
+        Log.d(TAG, "OnStart called");
+        super.onStart();
+        Intent intent = new Intent(this, MusicService.class);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop(){
+        Log.d(TAG, "OnStop called");
+        super.onStop();
+        if(isBound){
             unbindService(serviceConnection);
             isBound = false;
         }
+        mainViewModel = null;
     }
 }

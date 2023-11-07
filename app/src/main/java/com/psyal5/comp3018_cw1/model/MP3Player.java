@@ -1,4 +1,4 @@
-package com.psyal5.comp3018_cw1.viewmodel;
+package com.psyal5.comp3018_cw1.model;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;

@@ -4,40 +4,40 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.psyal5.comp3018_cw1.viewmodel.data.CurrentSongManager;
+import com.psyal5.comp3018_cw1.model.MusicService;
 
 
 public class PlayerViewModel extends ViewModel {
+    private MusicService musicService;
     private MutableLiveData<String> songName = new MutableLiveData<>();
     public MutableLiveData<Boolean> isPlaying = new MutableLiveData<>(false);
 
+
+    // Method to update the song name
     public LiveData<String> getSongName() {
+        songName.setValue(musicService.getSongName());
         togglePlaying();
-        songName.setValue(CurrentSongManager.getSongName());
         return songName;
     }
 
     // Method to toggle the isPlaying state
     public void togglePlaying() {
-        if(CurrentSongManager.getState() == "PLAYING"){
+        if (musicService.getState().equals("PLAYING")) {
             isPlaying.setValue(true);
-        }else{
+        } else {
             isPlaying.setValue(false);
         }
     }
 
-    // Update icon and action
+    // Access the MusicService instance and perform pause/play actions
     public void onClickStatusButton() {
-        String currentState = CurrentSongManager.getState();
-        switch (currentState) {
-            case "PLAYING":
-                CurrentSongManager.pauseSong();
-                break;
-            case "PAUSED":
-                CurrentSongManager.playSong();
-                break;
+        if (musicService != null) {
+            if (musicService.getState().equals("PLAYING")) {
+                musicService.pauseSong();
+            } else if (musicService.getState().equals("PAUSED")) {
+                musicService.playSong();
+            }
         }
         togglePlaying();
     }
-
 }

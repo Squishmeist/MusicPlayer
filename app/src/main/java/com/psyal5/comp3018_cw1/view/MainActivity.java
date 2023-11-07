@@ -2,13 +2,19 @@ package com.psyal5.comp3018_cw1.view;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.database.Cursor;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.IBinder;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
@@ -17,18 +23,31 @@ import android.widget.SimpleCursorAdapter;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.psyal5.comp3018_cw1.R;
+import com.psyal5.comp3018_cw1.databinding.ActivityMainBinding;
 import com.psyal5.comp3018_cw1.viewmodel.MainViewModel;
+import com.psyal5.comp3018_cw1.model.MusicService;
 
 public class MainActivity extends AppCompatActivity {
     private MainViewModel mainViewModel;
     private static final int REQUEST_MANAGE_ALL_FILES_ACCESS = 100;
+    // A flag to check if the Activity is currently bound to the service.
+    private boolean isBound = false;
+    // A tool that helps in scheduling tasks to run at some future time.
+    private Handler handler = new Handler();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mainViewModel = new ViewModelProvider(this).get(MainViewModel.class);
+        binding.setMainViewModel(mainViewModel);
+        binding.setLifecycleOwner(this);
+
+        if (!isBound) {
+            Intent intent = new Intent(this, MusicService.class);
+            bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+        }
 
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.main);
@@ -51,6 +70,29 @@ public class MainActivity extends AppCompatActivity {
 
         checkAndRequestPermission();
     }
+
+
+    // A bridge or listener between the MainActivity and the MyService.
+    // Triggered when the service is successfully bound
+    private ServiceConnection serviceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // Linking the service to our myService variable.
+            MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
+            MusicService musicService = binder.getService();
+            mainViewModel.setMusicService(musicService);
+            // Flag that the binding is successful.
+            isBound = true;
+        }
+        //Triggered if the service unexpectedly disconnects
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            // Flagging that the binding is no longer active.
+            isBound = false;
+        }
+    };
+
+
 
     private void checkAndRequestPermission() {
         if (Environment.isExternalStorageManager()) {
@@ -85,8 +127,12 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("Range") String selectedSongURI = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
             Log.d("CW1", selectedSongURI);
 
-            mainViewModel.setSongUri(selectedSongURI);
-            startActivity(new Intent(MainActivity.this, PlayerActivity.class));
+            if (isBound) {  // Add a null check for musicService
+                Log.d("CW1", "song selected");
+                mainViewModel.setSongUri(selectedSongURI);
+                Intent playerIntent = new Intent(MainActivity.this, PlayerActivity.class);
+                startActivity(playerIntent);
+            }
         });
     }
 
@@ -100,6 +146,16 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 Log.d("CW1", "Permission denied; handle accordingly or inform the user");
             }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Ensuring the Activity unbinds from the service properly when it's about to be destroyed.
+        if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
         }
     }
 }

@@ -24,7 +24,7 @@ import com.psyal5.comp3018_cw1.viewmodel.PlayerViewModel;
 public class PlayerActivity extends AppCompatActivity {
     private PlayerViewModel playerViewModel;
     private boolean isBound = false;
-    private static final String TAG = "CW1";
+    private static final String TAG = "CW1-player";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,9 +38,7 @@ public class PlayerActivity extends AppCompatActivity {
         binding.setLifecycleOwner(this);
 
         setupBottomNavigation();
-        if(isBound){
-            observeViewModel();
-        }
+        observeViewModel();
     }
 
     private void setupBottomNavigation() {
@@ -67,21 +65,52 @@ public class PlayerActivity extends AppCompatActivity {
     }
 
     private void observeViewModel() {
-        playerViewModel.getSongName().observe(this, s -> {
+        playerViewModel.songName.observe(this, s -> {
             // Update song name UI using data binding or findViewById
             TextView songName = findViewById(R.id.songNameTextView);
             songName.setText(s);
         });
 
-        playerViewModel.getIsPlaying().observe(this, isPlaying -> {
+        ImageButton statusButton = findViewById(R.id.statusButton);
+        playerViewModel.isPlaying.observe(this, isPlaying -> {
             // Update status button UI based on isPlaying using data binding or findViewById
-            ImageButton statusButton = findViewById(R.id.statusButton);
-            if (isPlaying) {
-                statusButton.setImageResource(R.drawable.ic_pause_foreground);
+            statusButton.setImageResource(isPlaying ? R.drawable.ic_pause_foreground : R.drawable.ic_play_foreground);
+        });
+
+        statusButton.setOnClickListener(v -> {
+            if (playerViewModel.getIsPlaying()) {
+                // If the song is already playing, pause it
+                playerViewModel.pauseMusic();
+                stopMusicService();
             } else {
-                statusButton.setImageResource(R.drawable.ic_play_foreground);
+                // If the song is not playing, play it
+                startMusicService();
+                playerViewModel.playMusic();
             }
         });
+
+        ImageButton stopButton = findViewById(R.id.stopButton);
+        stopButton.setOnClickListener(v -> {
+            playerViewModel.onStopButtonClicked();
+            stopMusicService();
+        });
+    }
+
+    private void startMusicService() {
+        Log.d(TAG, "startService");
+        Intent intent = new Intent(this, MusicService.class);
+        startService(intent);
+        bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    private void stopMusicService() {
+        Log.d(TAG, "stopService");
+        Intent intent = new Intent(this, MusicService.class);
+        stopService(intent);
+        if (isBound) {
+            unbindService(serviceConnection);
+            isBound = false;
+        }
     }
 
     public ServiceConnection serviceConnection = new ServiceConnection() {
@@ -94,12 +123,17 @@ public class PlayerActivity extends AppCompatActivity {
             Log.d(TAG, "isBound set to true");
             isBound = true; // Flag that the binding is successful.
             playerViewModel.setMusicService(musicService);
+            if (playerViewModel.getIsPlaying()) {
+                // Start the service when already playing
+                startMusicService();
+            }
         }
-        @Override //Triggered if the service unexpectedly disconnects
+        @Override // Triggered if the service unexpectedly disconnects
         public void onServiceDisconnected(ComponentName name) {
             isBound = false; // Flagging that the binding is no longer active.
         }
     };
+
 
     @Override
     protected void onStart(){

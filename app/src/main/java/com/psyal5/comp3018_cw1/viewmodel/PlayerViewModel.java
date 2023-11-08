@@ -6,44 +6,56 @@ import androidx.lifecycle.ViewModel;
 import com.psyal5.comp3018_cw1.model.MusicService;
 
 public class PlayerViewModel extends ViewModel {
-    private MutableLiveData<String> songName = new MutableLiveData<>("");
-    private MutableLiveData<Boolean> isPlaying = new MutableLiveData<>();
+    public MutableLiveData<String> songName = new MutableLiveData<>();
+    public MutableLiveData<Boolean> isPlaying = new MutableLiveData<>();
     private MusicService musicService;
 
-    public void setMusicService(MusicService musicService) {
-        this.musicService = musicService;
-        updateSongAndIsPlaying(); // Update song and isPlaying state when setting the service
+    public void setMusicService(MusicService service) {
+        musicService = service;
+        songName.setValue(musicService.getSongName());
+        isPlaying.setValue(musicService.isPlaying());
     }
 
-    // Observing MutableLiveData for the song name
-    public MutableLiveData<String> getSongName() {
-        return songName;
-    }
-
-    // Observing MutableLiveData for the isPlaying state
-    public MutableLiveData<Boolean> getIsPlaying() {
-        return isPlaying;
-    }
-
-    // Method to handle button click for play/pause
-    public void onClickStatusButton() {
+    // Button click methods
+    public void onStatusButtonClicked() {
         if (musicService != null) {
-            if (musicService.getState().equals("PLAYING")) {
-                musicService.pauseSong();
-            } else if (musicService.getState().equals("PAUSED")) {
-                musicService.playSong();
+            if (musicService.isPlaying()) {
+                pauseMusic();
+            } else {
+                playMusic();
             }
         }
-        updateSongAndIsPlaying();
     }
 
-    // Method to update the song name and isPlaying state
-    private void updateSongAndIsPlaying() {
+    public void playMusic(){
         if (musicService != null) {
-            String currentSong = musicService.getSongName();
-            songName.setValue(currentSong);
-            boolean isCurrentlyPlaying = musicService.getState().equals("PLAYING");
-            isPlaying.setValue(isCurrentlyPlaying);
+            musicService.playMusic();
+            isPlaying.setValue(musicService.isPlaying());
         }
+    }
+
+    public void pauseMusic(){
+        if (musicService != null) {
+            musicService.pauseMusic();
+            isPlaying.setValue(musicService.isPlaying());
+        }
+    }
+
+    public void stopMusic(){
+        if (musicService != null) {
+            musicService.stopMusic();
+            isPlaying.setValue(musicService.isPlaying());
+        }
+    }
+
+    public void onStopButtonClicked() {
+        if (musicService != null) {
+            musicService.stopMusic();
+            isPlaying.setValue(musicService.isPlaying());
+        }
+    }
+
+    public Boolean getIsPlaying() {
+        return musicService.isPlaying();
     }
 }

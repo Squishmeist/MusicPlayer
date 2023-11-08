@@ -26,6 +26,7 @@ public class MusicService extends Service {
     private final IBinder binder = new LocalBinder();
     private MusicCallback callback;
     private final MP3Player mp3Player = new MP3Player();
+    private String songUri = "";
 
     @Override
     public void onCreate(){
@@ -53,12 +54,13 @@ public class MusicService extends Service {
 
         new Thread(() -> {
             try{
+                loadMusic();
+                playMusic();
                 isPlaying = true;
                 Log.d(TAG, "Music is playing [Service]");
                 while(!cancelPlaying){
                     Thread.sleep(1000);
                     Log.d(TAG, String.valueOf(getProgress()));
-
                     if(callback != null){
                         callback.onMusicProgress(getProgress());
                     }
@@ -92,10 +94,9 @@ public class MusicService extends Service {
         void onMusicProgress(int progress);
     }
 
-    public void setCallback(boolean value){
-        cancelPlaying = value;
+    public void setCallback(MusicCallback callback){
+       this.callback = callback;
     }
-
 
     public class LocalBinder extends Binder {
         public MusicService getService() {
@@ -109,59 +110,68 @@ public class MusicService extends Service {
         return binder;
     }
 
-    public void setSongUri(String songUri) {
-        mp3Player.stop();
-        mp3Player.load(songUri, 1.0f); // Load the song with normal speed
-        mp3Player.play();
-    }
-
-    public void playSong(){
-        String songUri = mp3Player.getFilePath();
-        mp3Player.stop();
-        mp3Player.load(songUri, 1.0f); // Load the song with normal speed
-        mp3Player.play();
+    public void setMusic(String songUri) {
+        Log.d(TAG, "Set Music [Service]");
+        this.songUri = songUri;
     }
 
     public int getProgress(){
         return mp3Player.getProgress();
     }
 
-    public void pauseSong() {
-        if (mp3Player.getState().equals("PLAYING")) {
-            mp3Player.pause();
-        }
+    private void loadMusic(){
+        Log.d(TAG, "Load Music [Service]");
+        Log.d(TAG, String.format("SongURI %s [Service]", songUri));
+        mp3Player.load(songUri, 1.0f);
     }
 
-    public void stopSong() {
+    public void playMusic() {
+        Log.d(TAG, "Play Music [Service]");
+        mp3Player.play();
+    }
+
+
+    public void pauseMusic(){
+        Log.d(TAG, "Pause Music [Service]");
+        mp3Player.pause();
+        cancelPlaying = true;
+    }
+
+    public void stopMusic() {
+        Log.d(TAG, "Stop Music [Service]");
         mp3Player.stop();
+        cancelPlaying = true;
     }
 
     public String getSongName() {
-        // Convert the URI string to a Uri object
         String filePath = mp3Player.getFilePath();
-
-        // Create a File object using the file path
-        assert filePath != null;
-        File file = new File(filePath);
-
-        // Retrieve the name of the file
-        String songName = file.getName();
-
-        // Remove the file extension (".mp3")
-        int extensionIndex = songName.lastIndexOf('.');
-        if (extensionIndex > 0) {
-            songName = songName.substring(0, extensionIndex);
+        if (filePath != null && !filePath.isEmpty()) {
+            File file = new File(filePath);
+            String songName = file.getName();
+            int extensionIndex = songName.lastIndexOf('.');
+            if (extensionIndex > 0) {
+                songName = songName.substring(0, extensionIndex);
+            }
+            return songName;
+        } else {
+            // Handle the case where filePath is null or empty
+            return "Unknown"; // Or any other default value you prefer
         }
-        return songName;
     }
 
-    public String getState(){
-        return String.valueOf(mp3Player.getState());
+
+    public Boolean isPlaying() {
+        if (mp3Player.getState() == MP3Player.MP3PlayerState.PLAYING) {
+            Log.d(TAG, "Playing State [Service]");
+            return true;
+        }
+        Log.d(TAG, "Non-playing State [Service]");
+        return false;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        stopSong();
+        stopMusic();
     }
 }

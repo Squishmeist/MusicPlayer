@@ -11,10 +11,4 @@ public class SettingsViewModel extends ViewModel {
         this.musicService = musicService;
     }
 
-    public void setSongUri(String songUri) {
-        if(musicService != null){
-            musicService.setSongUri(songUri);
-        }
-    }
-
 }

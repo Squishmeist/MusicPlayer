@@ -102,11 +102,9 @@ public class MainActivity extends AppCompatActivity {
             Cursor c = (Cursor) lv.getItemAtPosition(myItemInt);
             @SuppressLint("Range") String selectedSongURI = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
 
-            if(isBound){
-                Log.d(TAG, "songSelected MusicService launched");
-                mainViewModel.setSongUri(selectedSongURI);
-            }
-
+            mainViewModel.setSong(selectedSongURI);
+            Intent intent = new Intent(this, MusicService.class);
+            startService(intent);
         });
     }
 
@@ -120,7 +118,12 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "isBound set to true");
             isBound = true; // Flag that the binding is successful.
             mainViewModel.setMusicService(musicService);
+            if (mainViewModel.getIsPlaying()) {
+                Intent startIntent = new Intent(MainActivity.this, MusicService.class);
+                startService(startIntent);
+            }
         }
+
         @Override //Triggered if the service unexpectedly disconnects
         public void onServiceDisconnected(ComponentName name) {
             isBound = false; // Flagging that the binding is no longer active.

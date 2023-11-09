@@ -58,13 +58,22 @@
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_stop_foreground"/>
 
+
             <ImageButton
-                android:id="@+id/statusButton"
+                android:id="@+id/playButton"
                 android:layout_width="30dp"
                 android:layout_height="30dp"
                 android:layout_marginStart="20dp"
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_play_foreground"/>
+
+            <ImageButton
+                android:id="@+id/pauseButton"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_marginStart="20dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_pause_foreground"/>
 
             <ImageButton
                 android:id="@+id/nextButton"

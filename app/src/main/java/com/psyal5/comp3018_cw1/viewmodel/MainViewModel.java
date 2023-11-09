@@ -9,16 +9,19 @@ public class MainViewModel extends ViewModel {
 
     public void setMusicService(MusicService musicService) {
         this.musicService = musicService;
+
     }
 
-    public void setSong(String songUri) {
-        if(musicService != null){
-            musicService.setMusic(songUri);
+    public void loadMusic(String musicUri) {
+        if (musicService != null) {
+            musicService.loadMusic(musicUri);
         }
     }
 
     public Boolean getIsPlaying() {
-        return musicService.isPlaying();
+        if (musicService != null) {
+            return musicService.isPlaying();
+        }
+        return false;
     }
-
 }

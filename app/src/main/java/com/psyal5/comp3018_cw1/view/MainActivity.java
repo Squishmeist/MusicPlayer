@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Log.d(TAG, "On create");
+        Log.d(TAG, "On create [Main]");
 
         ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mainViewModel = new ViewModelProvider(MainActivity.this).get(MainViewModel.class);
@@ -100,10 +100,17 @@ public class MainActivity extends AppCompatActivity {
 
         lv.setOnItemClickListener((myAdapter, myView, myItemInt, myIng) -> {
             Cursor c = (Cursor) lv.getItemAtPosition(myItemInt);
-            @SuppressLint("Range") String selectedSongURI = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
+            @SuppressLint("Range") String selectedMusicURI = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
 
-            mainViewModel.setSong(selectedSongURI);
             Intent intent = new Intent(this, MusicService.class);
+            Log.d(TAG, "stopService [Main]");
+            stopService(intent);
+
+            // Set the music
+            mainViewModel.loadMusic(selectedMusicURI);
+
+            Log.d(TAG, "startService [Main]");
+            // Start the service
             startService(intent);
         });
     }
@@ -111,22 +118,20 @@ public class MainActivity extends AppCompatActivity {
     public ServiceConnection serviceConnection = new ServiceConnection() {
         @Override  // Triggered when the service is successfully bound
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.d(TAG, "onServiceConnected");
+            Log.d(TAG, "onServiceConnected [Main]");
             // Linking the service to musicService variable.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             MusicService musicService = binder.getService();
-            Log.d(TAG, "isBound set to true");
+            Log.d(TAG, "isBound set to true [Main]");
             isBound = true; // Flag that the binding is successful.
             mainViewModel.setMusicService(musicService);
-            if (mainViewModel.getIsPlaying()) {
-                Intent startIntent = new Intent(MainActivity.this, MusicService.class);
-                startService(startIntent);
-            }
+            musicService.setCallback(progress -> Log.d(TAG, String.format("MusicState %d [Service]", progress)));
         }
 
         @Override //Triggered if the service unexpectedly disconnects
         public void onServiceDisconnected(ComponentName name) {
             isBound = false; // Flagging that the binding is no longer active.
+            mainViewModel.setMusicService(null);
         }
     };
 
@@ -145,7 +150,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStart(){
-        Log.d(TAG, "OnStart called");
+        Log.d(TAG, "OnStart called [Main]");
         super.onStart();
         Intent intent = new Intent(this, MusicService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -153,7 +158,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onStop(){
-        Log.d(TAG, "OnStop called");
+        Log.d(TAG, "OnStop called [Main]");
         super.onStop();
         if(isBound){
             unbindService(serviceConnection);

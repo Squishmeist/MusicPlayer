@@ -24,21 +24,19 @@ public class MusicService extends Service {
     private boolean isPlaying = false;
     private boolean cancelPlaying = false;
     private final IBinder binder = new LocalBinder();
+    private MP3Player mp3Player;
     private MusicCallback callback;
-    private final MP3Player mp3Player = new MP3Player();
-    private String songUri = "";
-
     @Override
     public void onCreate(){
         Log.d(TAG, "On Create [Service]");
         super.onCreate();
+        mp3Player = new MP3Player();
         createNotificationChannel();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId){
         Log.d(TAG, "onStartCommand [Service]");
-
         if(isPlaying){
             Log.d(TAG,"Music is already playing [Service]");
             return START_NOT_STICKY;
@@ -54,8 +52,6 @@ public class MusicService extends Service {
 
         new Thread(() -> {
             try{
-                loadMusic();
-                playMusic();
                 isPlaying = true;
                 Log.d(TAG, "Music is playing [Service]");
                 while(!cancelPlaying){
@@ -110,19 +106,18 @@ public class MusicService extends Service {
         return binder;
     }
 
-    public void setMusic(String songUri) {
+    public void setMusic(String musicUri) {
         Log.d(TAG, "Set Music [Service]");
-        this.songUri = songUri;
+        MusicManager.setMusicUri(musicUri);
     }
 
     public int getProgress(){
         return mp3Player.getProgress();
     }
 
-    private void loadMusic(){
+    public void loadMusic(String musicUri){
         Log.d(TAG, "Load Music [Service]");
-        Log.d(TAG, String.format("SongURI %s [Service]", songUri));
-        mp3Player.load(songUri, 1.0f);
+        mp3Player.load(musicUri, 1.0f);
     }
 
     public void playMusic() {
@@ -135,6 +130,7 @@ public class MusicService extends Service {
         Log.d(TAG, "Pause Music [Service]");
         mp3Player.pause();
         cancelPlaying = true;
+        Log.d(TAG, String.format("MusicState %s [Service]", mp3Player.getState()));
     }
 
     public void stopMusic() {
@@ -155,23 +151,27 @@ public class MusicService extends Service {
             return songName;
         } else {
             // Handle the case where filePath is null or empty
-            return "Unknown"; // Or any other default value you prefer
+            return "No song"; // Or any other default value you prefer
         }
     }
 
+    public MP3Player.MP3PlayerState getState(){
+        Log.d(TAG, String.format("MusicState %s [Service]", mp3Player.getState()));
+        return mp3Player.getState();
+    }
 
     public Boolean isPlaying() {
-        if (mp3Player.getState() == MP3Player.MP3PlayerState.PLAYING) {
-            Log.d(TAG, "Playing State [Service]");
+        if (getState() == MP3Player.MP3PlayerState.PLAYING) {
             return true;
         }
-        Log.d(TAG, "Non-playing State [Service]");
         return false;
     }
 
+
     @Override
     public void onDestroy() {
+        Log.d(TAG, "onDestroy [Service]");
         super.onDestroy();
-        stopMusic();
+        mp3Player.stop();
     }
 }

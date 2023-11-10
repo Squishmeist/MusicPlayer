@@ -1,6 +1,6 @@
 package com.psyal5.comp3018_cw1.view;
 
-import androidx.annotation.Nullable;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -12,25 +12,23 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.annotation.SuppressLint;
 import android.database.Cursor;
-import android.os.Environment;
 import android.os.IBinder;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.util.Log;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.psyal5.comp3018_cw1.R;
 import com.psyal5.comp3018_cw1.databinding.ActivityMainBinding;
-import com.psyal5.comp3018_cw1.viewmodel.MainViewModel;
 import com.psyal5.comp3018_cw1.model.MusicService;
+import com.psyal5.comp3018_cw1.viewmodel.MainViewModel;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "CW1";
     private MainViewModel mainViewModel;
     private boolean isBound = false;
-    private static final String TAG = "CW1";
-    private static final int REQUEST_MANAGE_ALL_FILES_ACCESS = 100;
+    ActivityResultLauncher<Intent> resultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,41 +41,16 @@ public class MainActivity extends AppCompatActivity {
         binding.setMainViewModel(mainViewModel);
         binding.setLifecycleOwner(this);
 
-        setupBottomNavigation();
-        checkAndRequestPermission();
+        observeViewModel();
+        readMusicFromFolder();
     }
 
-    private void setupBottomNavigation() {
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setSelectedItemId(R.id.main);
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            return handleBottomNavigationActions(item.getItemId());
-        });
-    }
+    private void observeViewModel() {
+        Button settingsButton = findViewById(R.id.settingsButton);
 
-    private boolean handleBottomNavigationActions(int itemId) {
-        // Handle different navigation options
-        if (itemId == R.id.player) {
-            startActivity(new Intent(MainActivity.this, PlayerActivity.class));
-            overridePendingTransition(0, 0);
-            return true;
-        } else if (itemId == R.id.settings) {
+        settingsButton.setOnClickListener(v -> {
             startActivity(new Intent(MainActivity.this, SettingsActivity.class));
-            overridePendingTransition(0, 0);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    private void checkAndRequestPermission() {
-        if (Environment.isExternalStorageManager()) {
-            Log.d(TAG, "The app already has the MANAGE_EXTERNAL_STORAGE permission");
-            readMusicFromFolder();
-        } else {
-            Log.d(TAG, "Request the MANAGE_EXTERNAL_STORAGE permission");
-            startActivity(new Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION));
-        }
+        });
     }
 
     private void readMusicFromFolder() {
@@ -100,70 +73,53 @@ public class MainActivity extends AppCompatActivity {
 
         lv.setOnItemClickListener((myAdapter, myView, myItemInt, myIng) -> {
             Cursor c = (Cursor) lv.getItemAtPosition(myItemInt);
-            @SuppressLint("Range") String selectedMusicURI = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
+            @SuppressLint("Range") String selectedMusicUri = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
 
-            Intent intent = new Intent(this, MusicService.class);
-            Log.d(TAG, "stopService [Main]");
-            stopService(intent);
+            if(!isBound){
+                Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+                bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
+            }
 
-            // Set the music
-            mainViewModel.loadMusic(selectedMusicURI);
-
-            Log.d(TAG, "startService [Main]");
-            // Start the service
-            startService(intent);
+            mainViewModel.onMusicSelected(selectedMusicUri);
+            startService(new Intent(MainActivity.this, MusicService.class));
+            startActivity(new Intent(MainActivity.this, PlayerActivity.class));
         });
     }
 
     public ServiceConnection serviceConnection = new ServiceConnection() {
         @Override  // Triggered when the service is successfully bound
         public void onServiceConnected(ComponentName className, IBinder service) {
-            Log.d(TAG, "onServiceConnected [Main]");
+            Log.d(TAG, "onServiceConnected [Player]");
             // Linking the service to musicService variable.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
             MusicService musicService = binder.getService();
-            Log.d(TAG, "isBound set to true [Main]");
+            Log.d(TAG, "isBound set to true [Player]");
             isBound = true; // Flag that the binding is successful.
             mainViewModel.setMusicService(musicService);
-            musicService.setCallback(progress -> Log.d(TAG, String.format("MusicState %d [Service]", progress)));
         }
-
-        @Override //Triggered if the service unexpectedly disconnects
+        @Override // Triggered if the service unexpectedly disconnects
         public void onServiceDisconnected(ComponentName name) {
             isBound = false; // Flagging that the binding is no longer active.
             mainViewModel.setMusicService(null);
         }
     };
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_MANAGE_ALL_FILES_ACCESS) {
-            if (Environment.isExternalStorageManager()) {
-                Log.d(TAG, "Permission granted; proceed with accessing external storage");
-                readMusicFromFolder();
-            } else {
-                Log.d(TAG, "Permission denied; handle accordingly or inform the user");
-            }
-        }
-    }
 
     @Override
     protected void onStart(){
         Log.d(TAG, "OnStart called [Main]");
         super.onStart();
-        Intent intent = new Intent(this, MusicService.class);
+        Intent intent = new Intent(MainActivity.this, MusicService.class);
         bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
-    protected void onStop(){
+    protected void onStop() {
         Log.d(TAG, "OnStop called [Main]");
         super.onStop();
         if(isBound){
             unbindService(serviceConnection);
             isBound = false;
         }
-        mainViewModel = null;
     }
 }

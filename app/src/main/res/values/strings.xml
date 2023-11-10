@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">comp3018_cw1</string>
+    <string name="settingsText">settings</string>
 </resources>

@@ -1,6 +1,5 @@
 package com.psyal5.comp3018_cw1.view;
 
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -15,7 +14,6 @@ import android.database.Cursor;
 import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -28,28 +26,25 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "CW1";
     private MainViewModel mainViewModel;
     private boolean isBound = false;
-    ActivityResultLauncher<Intent> resultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Log.d(TAG, "On create [Main]");
 
-        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         mainViewModel = new ViewModelProvider(MainActivity.this).get(MainViewModel.class);
+        ActivityMainBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         binding.setMainViewModel(mainViewModel);
-        binding.setLifecycleOwner(this);
 
         observeViewModel();
         readMusicFromFolder();
     }
 
     private void observeViewModel() {
-        Button settingsButton = findViewById(R.id.settingsButton);
-
-        settingsButton.setOnClickListener(v -> {
-            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        mainViewModel.getActivity().observe(this, activityClass -> {
+            if (activityClass != null) {
+                startActivity(new Intent(MainActivity.this, activityClass));
+            }
         });
     }
 

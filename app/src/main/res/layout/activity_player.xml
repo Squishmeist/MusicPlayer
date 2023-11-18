@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".view.PlayerActivity">
 
@@ -14,36 +13,76 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <ProgressBar
+            android:id="@+id/testBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:progress="0" />
+
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:gravity="center"
-            android:orientation="horizontal">
-
-            <ImageButton
-                android:id="@+id/stopButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="20dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_stop_foreground" />
+            android:layout_below="@id/testBar"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal"
+            android:gravity="center">
 
             <ImageButton
                 android:id="@+id/playButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_marginStart="20dp"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_play_foreground" />
+                android:src="@drawable/ic_play_foreground"
+                android:onClick="@{() -> playerViewModel.onPlayButtonClick() }"/>
 
             <ImageButton
                 android:id="@+id/pauseButton"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_marginStart="20dp"
                 android:background="@android:color/transparent"
-                android:src="@drawable/ic_pause_foreground" />
+                android:src="@drawable/ic_pause_foreground"
+                android:onClick="@{() -> playerViewModel.onPauseButtonClick() }"/>
+
+            <ImageButton
+                android:id="@+id/stopButton"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_marginStart="20dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_stop_foreground"
+                android:onClick="@{() -> playerViewModel.onStopButtonClick() }"/>
+
         </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/buttonBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="horizontal"
+            android:gravity="center">
+
+            <Button
+                android:id="@+id/listButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/listText"
+                android:onClick="@{() -> playerViewModel.onListButtonClick() }"
+                style="?android:attr/buttonBarButtonStyle" />
+
+            <Button
+                android:id="@+id/playerButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/playerText" />
+        </LinearLayout>
+
     </RelativeLayout>
+
 </layout>

@@ -57,9 +57,8 @@ public class MusicService extends Service {
                 Log.d(TAG, "Music is playing [Service]");
                 while(!stopPlaying){
                     Thread.sleep(1000);
-                    Log.d(TAG, String.valueOf(getProgress()));
                     if(callback != null){
-                        callback.onMusicProgress(getProgress());
+                        callback.onMusicProgress((int) getProgress());
                     }
                 }
             }catch (InterruptedException e){
@@ -106,8 +105,8 @@ public class MusicService extends Service {
         return binder;
     }
 
-    public int getProgress(){
-        return mp3Player.getProgress();
+    public double getProgress(){
+        return ((double) mp3Player.getProgress() / mp3Player.getDuration()) * 100;
     }
 
     public void loadMusic(String musicUri){
@@ -125,17 +124,13 @@ public class MusicService extends Service {
     public void pauseMusic(){
         Log.d(TAG, "Pause Music [Service]");
         mp3Player.pause();
+        isPlaying = false;
     }
 
     public void stopMusic() {
         Log.d(TAG, "Stop Music [Service]");
         mp3Player.stop();
         stopPlaying = true;
-    }
-
-    public MP3Player.MP3PlayerState getState(){
-        Log.d(TAG, String.format("MusicState %s [Service]", mp3Player.getState()));
-        return mp3Player.getState();
     }
 
     @Override

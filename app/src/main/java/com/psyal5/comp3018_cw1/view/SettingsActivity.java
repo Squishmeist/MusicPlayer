@@ -1,5 +1,6 @@
 package com.psyal5.comp3018_cw1.view;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -19,9 +20,19 @@ public class SettingsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "On create [Settings]");
+
         ActivitySettingsBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_settings);
         settingsViewModel = new ViewModelProvider(SettingsActivity.this).get(SettingsViewModel.class);
         binding.setSettingsViewModel(settingsViewModel);
-        binding.setLifecycleOwner(this);
+
+        observeViewModel();
+    }
+
+    private void observeViewModel() {
+        settingsViewModel.getActivity().observe(this, activityClass -> {
+            if (activityClass != null) {
+                startActivity(new Intent(SettingsActivity.this, activityClass));
+            }
+        });
     }
 }

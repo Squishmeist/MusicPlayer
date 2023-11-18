@@ -11,7 +11,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.ImageButton;
+import android.widget.ProgressBar;
 
 import com.psyal5.comp3018_cw1.R;
 import com.psyal5.comp3018_cw1.databinding.ActivityPlayerBinding;
@@ -27,36 +27,30 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         Log.d(TAG, "On create [Player]");
 
         ActivityPlayerBinding binding = DataBindingUtil.setContentView(this, R.layout.activity_player);
         playerViewModel = new ViewModelProvider(PlayerActivity.this).get(PlayerViewModel.class);
         binding.setPlayerViewModel(playerViewModel);
         binding.setLifecycleOwner(this);
+
         observeViewModel();
     }
-
     private void observeViewModel() {
-        ImageButton stopButton = findViewById(R.id.stopButton);
-        ImageButton playButton = findViewById(R.id.playButton);
-        ImageButton pauseButton = findViewById(R.id.pauseButton);
-
-        stopButton.setOnClickListener(v -> {
-            playerViewModel.onStopButtonClicked();
-            stopService(new Intent(PlayerActivity.this, MusicService.class));
-            if(isBound){
-                unbindService(serviceConnection);
-                isBound = false;
+        playerViewModel.getActivity().observe(this, activityClass -> {
+            if (activityClass != null) {
+                startActivity(new Intent(PlayerActivity.this, activityClass));
             }
         });
 
-        playButton.setOnClickListener(v -> {
-            playerViewModel.onPlayButtonClicked();
-        });
-
-        pauseButton.setOnClickListener(v -> {
-            playerViewModel.onPauseButtonClicked();
+        playerViewModel.getServiceRunning().observe(this, serviceRunning -> {
+            if (!serviceRunning) {
+                stopService(new Intent(PlayerActivity.this, MusicService.class));
+                if(isBound){
+                    unbindService(serviceConnection);
+                    isBound = false;
+                }
+            }
         });
 
     }
@@ -71,6 +65,10 @@ public class PlayerActivity extends AppCompatActivity {
             Log.d(TAG, "isBound set to true [Player]");
             isBound = true; // Flag that the binding is successful.
             playerViewModel.setMusicService(musicService);
+
+            ProgressBar test = findViewById(R.id.testBar);
+            musicService.setCallback(progress -> runOnUiThread(() -> test.setProgress(progress)));
+
         }
         @Override // Triggered if the service unexpectedly disconnects
         public void onServiceDisconnected(ComponentName name) {

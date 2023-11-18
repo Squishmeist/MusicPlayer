@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">comp3018_cw1</string>
-    <string name="settingsText">settings</string>
+    <string name="listText">Music List</string>
+    <string name="playerText">Music Player</string>
+    <string name="settingsText">Settings</string>
 </resources>

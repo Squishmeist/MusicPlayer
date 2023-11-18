@@ -66,8 +66,8 @@ public class PlayerActivity extends AppCompatActivity {
             isBound = true; // Flag that the binding is successful.
             playerViewModel.setMusicService(musicService);
 
-            ProgressBar test = findViewById(R.id.testBar);
-            musicService.setCallback(progress -> runOnUiThread(() -> test.setProgress(progress)));
+            ProgressBar progressBar = findViewById(R.id.progressBar);
+            musicService.setCallback(progress -> runOnUiThread(() -> progressBar.setProgress(progress)));
 
         }
         @Override // Triggered if the service unexpectedly disconnects

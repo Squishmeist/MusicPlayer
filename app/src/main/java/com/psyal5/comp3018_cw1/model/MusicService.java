@@ -25,6 +25,7 @@ public class MusicService extends Service {
     private final IBinder binder = new LocalBinder();
     private MP3Player mp3Player;
     private MusicCallback callback;
+    private boolean showNotification = false;
     @Override
     public void onCreate(){
         Log.d(TAG, "On Create [Service]");
@@ -42,20 +43,27 @@ public class MusicService extends Service {
             return START_NOT_STICKY;
         }
 
-        Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("Music Service")
-                .setContentText("Playing music")
-                .setSmallIcon(R.drawable.ic_launcher_background)
-                .build();
-
         Log.d(TAG, "Start foreground called [Service]");
-        startForeground(NOTIFICATION_ID, notification);
 
         new Thread(() -> {
             try{
                 isPlaying = true;
                 Log.d(TAG, "Music is playing [Service]");
                 while(!stopPlaying){
+                    if(!isPlaying){
+                        stopForeground(true);
+                    } else{
+                        if(showNotification){
+                            Log.d(TAG, "Notification [Service]");
+                            Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
+                                    .setContentTitle("Music Service")
+                                    .setContentText("Playing music")
+                                    .setSmallIcon(R.drawable.ic_launcher_background)
+                                    .build();
+                            startForeground(NOTIFICATION_ID, notification);
+                            showNotification = false;
+                        }
+                    }
                     Thread.sleep(1000);
                     if(callback != null){
                         callback.onMusicProgress((int) getProgress());
@@ -113,18 +121,21 @@ public class MusicService extends Service {
         Log.d(TAG, "Load Music [Service]");
         mp3Player.stop();
         mp3Player.load(musicUri, 1.0f);
+        showNotification = true;
     }
 
     public void playMusic() {
         Log.d(TAG, "Play Music [Service]");
         mp3Player.play();
         isPlaying = true;
+        showNotification = true;
     }
 
     public void pauseMusic(){
         Log.d(TAG, "Pause Music [Service]");
         mp3Player.pause();
         isPlaying = false;
+        showNotification = false;
     }
 
     public void stopMusic() {

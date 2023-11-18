@@ -3,4 +3,10 @@
     <string name="listText">Music List</string>
     <string name="playerText">Music Player</string>
     <string name="settingsText">Settings</string>
+    <string name="backgroundText">Set background</string>
+    <string name="redHint">Red value</string>
+    <string name="greenHint">Green value</string>
+    <string name="blueHint">Blue value</string>
+    <string name="playbackSpeedText">Set playback speed</string>
+    <string name="playbackSpeedHint">Playback value</string>
 </resources>

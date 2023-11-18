@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".view.PlayerActivity">
 
     <data>
@@ -10,79 +11,112 @@
     </data>
 
     <RelativeLayout
+        android:id="@+id/playerContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
+            android:layout_height="match_parent"
             android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:progress="0" />
+            android:layout_marginEnd="20dp">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/progressBar"
-            android:layout_centerHorizontal="true"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <ImageButton
-                android:id="@+id/playButton"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="20dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_play_foreground"
-                android:onClick="@{() -> playerViewModel.onPlayButtonClick() }"/>
-
-            <ImageButton
-                android:id="@+id/pauseButton"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="20dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_pause_foreground"
-                android:onClick="@{() -> playerViewModel.onPauseButtonClick() }"/>
-
-            <ImageButton
-                android:id="@+id/stopButton"
-                android:layout_width="60dp"
-                android:layout_height="60dp"
-                android:layout_marginStart="20dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_stop_foreground"
-                android:onClick="@{() -> playerViewModel.onStopButtonClick() }"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/buttonBar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <Button
-                android:id="@+id/listButton"
+            <TextView
+                android:id="@+id/playerText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/listText"
-                android:onClick="@{() -> playerViewModel.onListButtonClick() }"
-                style="?android:attr/buttonBarButtonStyle" />
+                android:layout_marginTop="44dp"
+                android:text="@string/playerText"
+                android:textSize="50sp"
+                app:layout_constraintBottom_toTopOf="@+id/buttonBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0" />
 
-            <Button
-                android:id="@+id/playerButton"
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:progress="0"
+                app:layout_constraintBottom_toTopOf="@+id/buttonBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/playerText"
+                app:layout_constraintVertical_bias="0.681" />
+
+            <LinearLayout
+                android:id="@+id/mediaBar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/playerText" />
-        </LinearLayout>
+                android:layout_below="@id/progressBar"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toTopOf="@id/buttonBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/progressBar"
+                app:layout_constraintVertical_bias="0.259">
 
+                <ImageButton
+                    android:id="@+id/playButton"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:background="@android:color/transparent"
+                    android:onClick="@{() -> playerViewModel.onPlayButtonClick() }"
+                    android:src="@drawable/ic_play_foreground" />
+
+                <ImageButton
+                    android:id="@+id/pauseButton"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="20dp"
+                    android:background="@android:color/transparent"
+                    android:onClick="@{() -> playerViewModel.onPauseButtonClick() }"
+                    android:src="@drawable/ic_pause_foreground" />
+
+                <ImageButton
+                    android:id="@+id/stopButton"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:layout_marginStart="20dp"
+                    android:background="@android:color/transparent"
+                    android:onClick="@{() -> playerViewModel.onStopButtonClick() }"
+                    android:src="@drawable/ic_stop_foreground" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/buttonBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintVertical_bias="1.0"
+                app:layout_constraintWidth_percent="1">
+
+                <Button
+                    android:id="@+id/listButton"
+                    style="?android:attr/buttonBarButtonStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:onClick="@{() -> playerViewModel.onListButtonClick() }"
+                    android:text="@string/listText" />
+
+                <Button
+                    android:id="@+id/playerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/playerText" />
+            </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </RelativeLayout>
 
 </layout>

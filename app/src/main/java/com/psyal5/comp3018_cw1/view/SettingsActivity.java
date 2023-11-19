@@ -8,8 +8,8 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.RelativeLayout;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -23,7 +23,6 @@ public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "CW1";
     private SettingsViewModel settingsViewModel;
     private boolean isBound = false;
-    private RelativeLayout settingsContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,14 +34,13 @@ public class SettingsActivity extends AppCompatActivity {
         binding.setSettingsViewModel(settingsViewModel);
         binding.setLifecycleOwner(this);
 
-        settingsContent = findViewById(R.id.settingsContent);
         observeViewModel();
 
         if (savedInstanceState == null) {
             Intent intent = getIntent();
             if (intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")) {
-                Integer backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
-                Float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
+                int backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
+                float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
                 settingsViewModel.setBackgroundColour(backgroundColour);
                 settingsViewModel.setPlaybackSpeed(playbackSpeed);
             }
@@ -50,12 +48,6 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     private void observeViewModel() {
-        settingsViewModel.getBackgroundColour().observe(this, backgroundColour -> {
-            if (backgroundColour != null) {
-                settingsContent.setBackgroundColor(Integer.parseInt(backgroundColour));
-            }
-        });
-
         settingsViewModel.getListActivity().observe(this, listActivity -> {
             if (listActivity) {
                 Intent replyIntent = new Intent();
@@ -65,6 +57,14 @@ public class SettingsActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                settingsViewModel.onListButtonClick();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
 
     }
 

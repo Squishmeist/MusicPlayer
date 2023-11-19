@@ -18,7 +18,6 @@ import android.os.IBinder;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 
 import com.psyal5.comp3018_cw1.R;
@@ -30,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "CW1";
     private MainViewModel mainViewModel;
     private boolean isBound = false;
-    private RelativeLayout mainContent;
     ActivityResultLauncher<Intent> resultLauncher;
 
     @Override
@@ -43,26 +41,27 @@ public class MainActivity extends AppCompatActivity {
         binding.setMainViewModel(mainViewModel);
         binding.setLifecycleOwner(this);
 
-        mainContent = findViewById(R.id.mainContent);
         observeViewModel();
+
+        //mainViewModel.readMusicFromFolder(this);
         readMusicFromFolder();
 
-        Intent intent = getIntent();
-        if(intent != null && intent.hasExtra("backgroundColour")){
-            Integer backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
-            Float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
-            mainViewModel.setBackgroundColour(backgroundColour);
-            mainViewModel.setPlaybackSpeed(playbackSpeed);
+        if (savedInstanceState == null) {
+            Intent intent = getIntent();
+            if(intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")){
+                Integer backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
+                float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
+                mainViewModel.setBackgroundColour(backgroundColour);
+                mainViewModel.setPlaybackSpeed(playbackSpeed);
+            }else{
+                mainViewModel.setBackgroundColour(Color.WHITE);
+                mainViewModel.setPlaybackSpeed(1.0f);
+            }
         }
+
     }
 
     private void observeViewModel() {
-        mainViewModel.getBackgroundColour().observe(this, backgroundColour -> {
-            if (backgroundColour != null) {
-                mainContent.setBackgroundColor(backgroundColour);
-            }
-        });
-
         mainViewModel.getPlayerActivity().observe(this, playerActivity ->{
             if(playerActivity){
                 mainViewModel.setPlayerActivity(false);
@@ -83,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
                 result -> {
                     if(result.getResultCode() == RESULT_OK && result.getData() != null){
                         Integer returnedBackgroundColour = result.getData().getIntExtra("returnedBackgroundColour", Color.WHITE);
-                        Float returnedPlaybackSpeed = result.getData().getFloatExtra("returnedPlaybackSpeed", 1.0f);
+                        float returnedPlaybackSpeed = result.getData().getFloatExtra("returnedPlaybackSpeed", 1.0f);
                         mainViewModel.setBackgroundColour(returnedBackgroundColour);
                         mainViewModel.setPlaybackSpeed(returnedPlaybackSpeed);
                     }

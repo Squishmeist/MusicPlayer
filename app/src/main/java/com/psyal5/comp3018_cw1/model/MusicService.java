@@ -154,4 +154,12 @@ public class MusicService extends Service {
         super.onDestroy();
         mp3Player.stop();
     }
+
+    @Override
+    public void onTaskRemoved(Intent rootIntent){
+        Log.d(TAG, "onTaskRemoved [Service]]");
+        stopSelf();
+        stopForeground(true);
+        super.onTaskRemoved(rootIntent);
+    }
 }

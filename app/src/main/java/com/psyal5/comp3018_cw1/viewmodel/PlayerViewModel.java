@@ -12,6 +12,7 @@ public class PlayerViewModel extends ViewModel {
     private final MutableLiveData<Boolean> listActivity = new MutableLiveData<>();
     private final MutableLiveData<Integer> backgroundColour = new MutableLiveData<>();
     private final MutableLiveData<String> playbackSpeed = new MutableLiveData<>();
+    private final MutableLiveData<Integer> playbackProgress = new MutableLiveData<>();
     private final MutableLiveData<Boolean> serviceRunning = new MutableLiveData<>();
 
     public Integer getBackgroundColourInt(){
@@ -25,24 +26,29 @@ public class PlayerViewModel extends ViewModel {
     public MutableLiveData<Boolean> getServiceRunning(){
         return serviceRunning;
     }
-
     public  MutableLiveData<Integer> getBackgroundColour(){
         return backgroundColour;
     }
     public  MutableLiveData<String> getPlaybackSpeed(){
         return playbackSpeed;
     }
-
+    public MutableLiveData<Integer> getPlaybackProgress(){
+        return playbackProgress;
+    }
     public MutableLiveData<Boolean> getListActivity(){
         return listActivity;
     }
 
-    public void setBackgroundColour(Integer backgroundColour) {
-        this.backgroundColour.setValue(backgroundColour);
+    public void setBackgroundColour(int colour) {
+        backgroundColour.setValue(colour);
     }
 
     public void setPlaybackSpeed(float playbackSpeed){
         this.playbackSpeed.setValue(String.valueOf(playbackSpeed));
+    }
+
+    public void setPlaybackProgress(Integer playbackProgress) {
+        this.playbackProgress.setValue(playbackProgress);
     }
 
     public void setListActivity(Boolean isActive){
@@ -76,4 +82,5 @@ public class PlayerViewModel extends ViewModel {
     public void onListButtonClick(){
         listActivity.setValue(true);
     }
+
 }

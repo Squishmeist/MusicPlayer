@@ -1,5 +1,6 @@
 package com.psyal5.comp3018_cw1.view;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -12,20 +13,16 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 
 import com.psyal5.comp3018_cw1.R;
 import com.psyal5.comp3018_cw1.databinding.ActivityPlayerBinding;
 import com.psyal5.comp3018_cw1.model.MusicService;
 import com.psyal5.comp3018_cw1.viewmodel.PlayerViewModel;
 
-
 public class PlayerActivity extends AppCompatActivity {
     private static final String TAG = "CW1";
     private PlayerViewModel playerViewModel;
     private boolean isBound = false;
-    private RelativeLayout playerContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,24 +34,19 @@ public class PlayerActivity extends AppCompatActivity {
         binding.setPlayerViewModel(playerViewModel);
         binding.setLifecycleOwner(this);
 
-        playerContent = findViewById(R.id.playerContent);
         observeViewModel();
 
-        Intent intent = getIntent();
-        if(intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")){
-            Integer backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
-            Float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
-            playerViewModel.setBackgroundColour(backgroundColour);
-            playerViewModel.setPlaybackSpeed(playbackSpeed);
+        if (savedInstanceState == null) {
+            Intent intent = getIntent();
+            if(intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")){
+                int backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
+                float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
+                playerViewModel.setBackgroundColour(backgroundColour);
+                playerViewModel.setPlaybackSpeed(playbackSpeed);
+            }
         }
     }
     private void observeViewModel() {
-        playerViewModel.getBackgroundColour().observe(this, backgroundColour -> {
-            if (backgroundColour != null) {
-                playerContent.setBackgroundColor(backgroundColour);
-            }
-        });
-
         playerViewModel.getServiceRunning().observe(this, serviceRunning -> {
             if (!serviceRunning) {
                 stopService(new Intent(PlayerActivity.this, MusicService.class));
@@ -74,6 +66,14 @@ public class PlayerActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                playerViewModel.onListButtonClick();
+            }
+        };
+        getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     public ServiceConnection serviceConnection = new ServiceConnection() {
@@ -86,10 +86,7 @@ public class PlayerActivity extends AppCompatActivity {
             Log.d(TAG, "isBound set to true [Player]");
             isBound = true; // Flag that the binding is successful.
             playerViewModel.setMusicService(musicService);
-
-            ProgressBar progressBar = findViewById(R.id.progressBar);
-            musicService.setCallback(progress -> runOnUiThread(() -> progressBar.setProgress(progress)));
-
+            musicService.setCallback(progress -> runOnUiThread(() -> playerViewModel.setPlaybackProgress(progress)));
         }
         @Override // Triggered if the service unexpectedly disconnects
         public void onServiceDisconnected(ComponentName name) {

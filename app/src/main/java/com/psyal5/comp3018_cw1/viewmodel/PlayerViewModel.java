@@ -62,7 +62,7 @@ public class PlayerViewModel extends ViewModel {
 
     public void onPlayButtonClick() {
         if (musicService != null) {
-            musicService.playMusic();
+            musicService.playMusic(getPlaybackSpeedFloat());
         }
     }
 

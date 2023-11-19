@@ -83,7 +83,7 @@ public class SettingsViewModel extends ViewModel {
         return playbackSpeed;
     }
 
-    public void updateBackgroundColour() {
+    private void updateBackgroundColour() {
         int red = redValue.getValue() != null ? Integer.parseInt(redValue.getValue()) : 0;
         int green = greenValue.getValue() != null ? Integer.parseInt(greenValue.getValue()) : 0;
         int blue = blueValue.getValue() != null ? Integer.parseInt(blueValue.getValue()) : 0;
@@ -100,13 +100,30 @@ public class SettingsViewModel extends ViewModel {
         }
     }
 
+    private void updatePlaybackSpeed(){
+        float speed = getPlaybackSpeedFloat();
+
+        if(speed > 5){
+            speed = 1;
+        }
+
+        this.setPlaybackSpeed(speed);
+
+        if(musicService != null){
+            if(musicService.isPlaying){
+                musicService.setPlayback(getPlaybackSpeedFloat());
+            }
+        }
+
+    }
+
     public void onListButtonClick(){
         listActivity.setValue(true);
     }
 
     public void onUpdateButtonClick(){
         updateBackgroundColour();
-        musicService.setPlayback(getPlaybackSpeedFloat());
+        updatePlaybackSpeed();
     }
 
 }

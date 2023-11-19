@@ -100,8 +100,7 @@ public class MainViewModel extends ViewModel {
     public void onMusicItemSelected(String selectedMusicUri) {
         if (musicService != null) {
             startService.setValue(true);
-            musicService.loadMusic(selectedMusicUri);
-            musicService.setPlayback(getPlaybackSpeed());
+            musicService.loadMusic(selectedMusicUri, getPlaybackSpeed());
             playerActivity.setValue(true);
         }
     }

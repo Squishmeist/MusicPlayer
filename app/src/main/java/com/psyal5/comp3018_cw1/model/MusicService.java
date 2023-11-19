@@ -20,7 +20,7 @@ public class MusicService extends Service {
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
     private static final String TAG ="CW1";
-    private boolean isPlaying = false;
+    public boolean isPlaying = false;
     private boolean stopPlaying = false;
     private final IBinder binder = new LocalBinder();
     private MP3Player mp3Player;
@@ -114,19 +114,35 @@ public class MusicService extends Service {
     }
 
     public double getProgress(){
-        return ((double) mp3Player.getProgress() / mp3Player.getDuration()) * 100;
+        int duration = mp3Player.getDuration();
+
+        // Check for division by zero
+        if (duration == 0) {
+            return 0.0;
+        }
+
+        // Calculate progress using the current position relative to the duration
+        double progress = ((double) mp3Player.getProgress() / duration) * 100;
+
+        // Check if progress is close to 100% and stop music
+        if (progress >= 99.9) {
+            progress = 0;
+            stopMusic();
+        }
+        return progress;
     }
 
-    public void loadMusic(String musicUri){
+    public void loadMusic(String musicUri, float speed){
         Log.d(TAG, "Load Music [Service]");
         mp3Player.stop();
-        mp3Player.load(musicUri, 1.0f);
+        mp3Player.load(musicUri, speed);
         showNotification = true;
     }
 
-    public void playMusic() {
+    public void playMusic(float speed) {
         Log.d(TAG, "Play Music [Service]");
         mp3Player.play();
+        setPlayback(speed);
         isPlaying = true;
         showNotification = true;
     }

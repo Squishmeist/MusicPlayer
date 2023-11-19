@@ -44,7 +44,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/settingsText"
                 app:musicPaths="@{mainViewModel.musicPaths}"
-                app:onMusicItemClick="@{mainViewModel.onMusicItemSelected}"/>
+                app:onMusicItemSelected="@{mainViewModel.onMusicItemSelected}"/>
 
             <LinearLayout
                 android:id="@+id/buttonBar"

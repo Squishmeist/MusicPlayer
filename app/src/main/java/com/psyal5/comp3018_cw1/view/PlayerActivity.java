@@ -8,10 +8,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import com.psyal5.comp3018_cw1.R;
 import com.psyal5.comp3018_cw1.databinding.ActivityPlayerBinding;
@@ -23,6 +25,7 @@ public class PlayerActivity extends AppCompatActivity {
     private static final String TAG = "CW1";
     private PlayerViewModel playerViewModel;
     private boolean isBound = false;
+    private RelativeLayout playerContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,12 +37,22 @@ public class PlayerActivity extends AppCompatActivity {
         binding.setPlayerViewModel(playerViewModel);
         binding.setLifecycleOwner(this);
 
+        playerContent = findViewById(R.id.playerContent);
         observeViewModel();
+
+        Intent intent = getIntent();
+        if(intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")){
+            Log.d("test", "HERE");
+            Integer backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
+            Float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
+            playerViewModel.setBackgroundColour(backgroundColour);
+            playerViewModel.setPlaybackSpeed(playbackSpeed);
+        }
     }
     private void observeViewModel() {
-        playerViewModel.getActivity().observe(this, activityClass -> {
-            if (activityClass != null) {
-                startActivity(new Intent(PlayerActivity.this, activityClass));
+        playerViewModel.getBackgroundColour().observe(this, backgroundColour -> {
+            if (backgroundColour != null) {
+                playerContent.setBackgroundColor(backgroundColour);
             }
         });
 
@@ -53,6 +66,14 @@ public class PlayerActivity extends AppCompatActivity {
             }
         });
 
+        playerViewModel.getListActivity().observe(this, listActivity -> {
+            if (listActivity) {
+                Intent intent = new Intent(PlayerActivity.this, MainActivity.class);
+                intent.putExtra("backgroundColour", playerViewModel.getBackgroundColourInt());
+                intent.putExtra("playbackSpeed", playerViewModel.getPlaybackSpeedFloat());
+                startActivity(intent);
+            }
+        });
     }
 
     public ServiceConnection serviceConnection = new ServiceConnection() {

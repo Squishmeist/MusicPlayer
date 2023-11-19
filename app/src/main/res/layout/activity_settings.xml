@@ -30,83 +30,96 @@
                 android:textSize="50sp"
                 app:layout_constraintBottom_toTopOf="@+id/buttonBar"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.497"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0" />
 
-            <TextView
-                android:id="@+id/backgroundText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/settingsText"
-                android:layout_marginTop="20dp"
-                android:text="@string/backgroundText"
-                android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/settingsText" />
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                app:layout_constraintBottom_toTopOf="@+id/buttonBar"
+                app:layout_constraintTop_toBottomOf="@+id/settingsText"
+                app:layout_constraintVertical_bias="1.0"
+                tools:layout_editor_absoluteX="0dp">
 
-            <LinearLayout
-                android:id="@+id/backgroundSet"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/backgroundText"
-                android:orientation="horizontal"
-                app:layout_constraintTop_toBottomOf="@id/backgroundText"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintWidth_percent="1">
-
-                <EditText
-                    android:id="@+id/redEditText"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/redHint"
-                    android:inputType="number" />
+                    android:orientation="vertical">
 
-                <EditText
-                    android:id="@+id/blueEditText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/blueHint"
-                    android:inputType="numberDecimal" />
+                    <TextView
+                        android:id="@+id/backgroundText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/settingsText"
+                        android:layout_marginTop="20dp"
+                        android:text="@string/backgroundText"
+                        android:textSize="18sp" />
 
-                <EditText
-                    android:id="@+id/greenEditText"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:hint="@string/greenHint"
-                    android:inputType="numberDecimal" />
-            </LinearLayout>
+                    <LinearLayout
+                        android:id="@+id/backgroundSet"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        app:layout_constraintWidth_percent="1">
 
-            <TextView
-                android:id="@+id/playbackSpeedText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="@string/playbackSpeedText"
-                android:textSize="18sp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/backgroundSet" />
+                        <EditText
+                            android:id="@+id/redEditText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/redHint"
+                            android:inputType="number"
+                            android:text="@={settingsViewModel.redValue}" />
 
-            <EditText
-                android:id="@+id/playbackSpeedEditText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/playbackSpeedHint"
-                android:layout_marginTop="8dp"
-                android:inputType="number"
-                app:layout_constraintTop_toBottomOf="@id/playbackSpeedText"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                        <EditText
+                            android:id="@+id/greenEditText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/greenHint"
+                            android:inputType="number"
+                            android:text="@={settingsViewModel.greenValue}" />
+
+                        <EditText
+                            android:id="@+id/blueEditText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:hint="@string/blueHint"
+                            android:inputType="number"
+                            android:text="@={settingsViewModel.blueValue}" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/playbackSpeedText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="32dp"
+                        android:text="@string/playbackSpeedText"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/playbackSpeedEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:layout_weight="1"
+                        android:hint="@string/playbackSpeedHint"
+                        android:inputType="number"
+                        android:text="@={settingsViewModel.playbackSpeed}"/>
+
+                    <Button
+                        android:id="@+id/updateButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="1dp"
+                        android:layout_marginBottom="4dp"
+                        android:onClick="@{() -> settingsViewModel.onUpdateButtonClick() }"
+                        android:text="@string/updateText" />
+                </LinearLayout>
+            </ScrollView>
 
             <LinearLayout
                 android:id="@+id/buttonBar"

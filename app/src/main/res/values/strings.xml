@@ -9,4 +9,5 @@
     <string name="blueHint">Blue value</string>
     <string name="playbackSpeedText">Set playback speed</string>
     <string name="playbackSpeedHint">Playback value</string>
+    <string name="updateText">Update</string>
 </resources>

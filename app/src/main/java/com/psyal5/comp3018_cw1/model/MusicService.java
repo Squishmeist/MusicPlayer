@@ -144,6 +144,10 @@ public class MusicService extends Service {
         stopPlaying = true;
     }
 
+    public void setPlayback(float speed){
+        mp3Player.setPlaybackSpeed(speed);
+    }
+
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy [Service]");

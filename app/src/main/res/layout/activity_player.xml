@@ -47,7 +47,19 @@
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/playerText"
-                app:layout_constraintVertical_bias="0.681" />
+                app:layout_constraintVertical_bias="0.39" />
+
+            <TextView
+                android:id="@+id/playbackSpeedText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@={playerViewModel.playbackSpeed}"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toTopOf="@+id/mediaBar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/progressBar"
+                app:layout_constraintVertical_bias="0.463" />
 
             <LinearLayout
                 android:id="@+id/mediaBar"
@@ -59,7 +71,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/progressBar"
-                app:layout_constraintVertical_bias="0.259">
+                app:layout_constraintVertical_bias="0.348">
 
                 <ImageButton
                     android:id="@+id/playButton"

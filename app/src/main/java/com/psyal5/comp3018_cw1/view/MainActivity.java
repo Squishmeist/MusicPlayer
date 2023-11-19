@@ -63,25 +63,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        mainViewModel.getNextActivity().observe(this, nextActivity -> {
-            if (nextActivity != null) {
-                Class nextActivityClass = null;
-                if(nextActivity == "Player"){
-                    nextActivityClass = PlayerActivity.class;
-                }else if(nextActivity == "Settings"){
-                    nextActivityClass = SettingsActivity.class;
-                }
-                if(nextActivityClass != null){
-                    Intent intent = new Intent(MainActivity.this, nextActivityClass);
-                    intent.putExtra("backgroundColour", mainViewModel.getBackgroundColourInt());
-                    intent.putExtra("playbackSpeed", mainViewModel.getPlaybackSpeed());
-                    if(nextActivity == "Player"){
-                        startActivity(intent);
-                    }else if (nextActivity == "Settings"){
-                        resultLauncher.launch(intent);
-                    }
+        mainViewModel.getPlayerActivity().observe(this, playerActivity ->{
+            if(playerActivity){
+                Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
+                startActivity(putExtra(intent));
+            }
+        });
 
-                }
+        mainViewModel.getSettingsActivity().observe(this, settingsActivity ->{
+            if(settingsActivity){
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                resultLauncher.launch(putExtra(intent));
             }
         });
 
@@ -94,6 +86,12 @@ public class MainActivity extends AppCompatActivity {
                         mainViewModel.setPlaybackSpeed(returnedPlaybackSpeed);
                     }
                 });
+    }
+
+    private Intent putExtra(Intent intent){
+        intent.putExtra("backgroundColour", mainViewModel.getBackgroundColourInt());
+        intent.putExtra("playbackSpeed", mainViewModel.getPlaybackSpeed());
+        return intent;
     }
 
     private void readMusicFromFolder() {
@@ -126,9 +124,7 @@ public class MainActivity extends AppCompatActivity {
             mainViewModel.onMusicSelected(selectedMusicUri);
             startService(new Intent(MainActivity.this, MusicService.class));
             Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-            intent.putExtra("backgroundColour", mainViewModel.getBackgroundColourInt());
-            intent.putExtra("playbackSpeed", mainViewModel.getPlaybackSpeed());
-            startActivity(intent);
+            startActivity(putExtra(intent));
         });
     }
 

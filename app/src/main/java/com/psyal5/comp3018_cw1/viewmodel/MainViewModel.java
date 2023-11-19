@@ -11,7 +11,8 @@ import java.util.Objects;
 
 public class MainViewModel extends ViewModel {
     private MusicService musicService;
-    private final MutableLiveData<String> nextActivity = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> playerActivity = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> settingsActivity = new MutableLiveData<>();
     private final MutableLiveData<Integer> backgroundColour = new MutableLiveData<>();
     private float playbackSpeed;
 
@@ -32,10 +33,12 @@ public class MainViewModel extends ViewModel {
         return backgroundColour;
     }
 
-    public MutableLiveData<String> getNextActivity(){
-        MutableLiveData<String> temp = nextActivity;
-        nextActivity.setValue(null);
-        return temp;
+    public MutableLiveData<Boolean> getPlayerActivity(){
+        return playerActivity;
+    }
+
+    public MutableLiveData<Boolean> getSettingsActivity(){
+        return settingsActivity;
     }
 
     public void setBackgroundColour(Integer backgroundColour) {
@@ -58,11 +61,11 @@ public class MainViewModel extends ViewModel {
     }
 
     public void onPlayerButtonClick(){
-        nextActivity.setValue("Player");
+        playerActivity.setValue(true);
     }
 
     public void onSettingsButtonClick(){
-        nextActivity.setValue("Settings");
+        settingsActivity.setValue(true);
     }
 
 }

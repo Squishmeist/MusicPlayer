@@ -42,7 +42,6 @@ public class PlayerActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         if(intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")){
-            Log.d("test", "HERE");
             Integer backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
             Float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
             playerViewModel.setBackgroundColour(backgroundColour);

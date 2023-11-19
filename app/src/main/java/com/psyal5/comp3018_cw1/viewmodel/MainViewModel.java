@@ -16,10 +16,11 @@ import java.util.Objects;
 
 public class MainViewModel extends ViewModel {
     private MusicService musicService;
+    private final MutableLiveData<Boolean> startService = new MutableLiveData<>();
     private final MutableLiveData<Boolean> playerActivity = new MutableLiveData<>();
     private final MutableLiveData<Boolean> settingsActivity = new MutableLiveData<>();
     private final MutableLiveData<Integer> backgroundColour = new MutableLiveData<>();
-    private MutableLiveData<List<String>> musicList = new MutableLiveData<>();
+    private final MutableLiveData<List<String>> musicPaths  = new MutableLiveData<>();
     private float playbackSpeed;
 
     public Integer getBackgroundColourInt() {
@@ -33,49 +34,42 @@ public class MainViewModel extends ViewModel {
     public  MutableLiveData<Integer> getBackgroundColour(){
         return backgroundColour;
     }
-
+    public MutableLiveData<Boolean> getStartService(){
+        return startService;
+    }
     public MutableLiveData<Boolean> getPlayerActivity(){
         return playerActivity;
     }
-
     public MutableLiveData<Boolean> getSettingsActivity(){
         return settingsActivity;
     }
-
-    public MutableLiveData<List<String>> getMusicList() {
-        return musicList;
+    public MutableLiveData<List<String>> getMusicPaths() {
+        return musicPaths ;
     }
 
     public void setBackgroundColour(Integer backgroundColour) {
         this.backgroundColour.setValue(backgroundColour);
     }
-
     public void setPlaybackSpeed(float playbackSpeed){
         this.playbackSpeed = playbackSpeed;
     }
 
-    public void updateMusicList(List<String> newMusicList) {
-        musicList.setValue(newMusicList);
-        Log.d("test", musicList.toString());
+    public void setMusicPaths(List<String> newMusicList) {
+        musicPaths.setValue(newMusicList);
     }
 
     public void setMusicService(MusicService service) {
         musicService = service;
     }
-
+    public void setStartService(Boolean isActive){
+        startService.setValue(isActive);
+    }
     public void setPlayerActivity(Boolean isActive){
         playerActivity.setValue(isActive);
     }
 
     public void setSettingsActivity(Boolean isActive){
         settingsActivity.setValue(isActive);
-    }
-
-    public void onMusicSelected(String musicUri){
-        if (musicService != null) {
-            musicService.loadMusic(musicUri);
-            musicService.setPlayback(getPlaybackSpeed());
-        }
     }
 
     public void readMusicFromFolder(Context context) {
@@ -100,22 +94,17 @@ public class MainViewModel extends ViewModel {
 
         Log.d("test", musicPaths.toString());
         // Update the LiveData with the new list
-        updateMusicList(musicPaths);
+        setMusicPaths(musicPaths);
     }
 
-    public void onListViewClick(int position) {
-        // Get the list of items from your ViewModel
-        List<String> musicList = getMusicList().getValue();
-
-        // Ensure the position is valid
-        int clippedPosition = Math.min(position, musicList.size() - 1);
-
-        // Get the clicked item
-        String clickedItem = musicList.get(clippedPosition);
-        onMusicSelected(clickedItem);
-        playerActivity.setValue(true);
+    public void onMusicItemSelected(String selectedMusicUri) {
+        if (musicService != null) {
+            startService.setValue(true);
+            musicService.loadMusic(selectedMusicUri);
+            musicService.setPlayback(getPlaybackSpeed());
+            playerActivity.setValue(true);
+        }
     }
-
 
     public void onPlayerButtonClick(){
         playerActivity.setValue(true);

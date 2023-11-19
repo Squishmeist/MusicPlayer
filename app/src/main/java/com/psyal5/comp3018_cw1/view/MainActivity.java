@@ -12,14 +12,8 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.annotation.SuppressLint;
-import android.database.Cursor;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
-
 import com.psyal5.comp3018_cw1.R;
 import com.psyal5.comp3018_cw1.databinding.ActivityMainBinding;
 import com.psyal5.comp3018_cw1.model.MusicService;
@@ -43,8 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         observeViewModel();
 
-        //mainViewModel.readMusicFromFolder(this);
-        readMusicFromFolder();
+        mainViewModel.readMusicFromFolder(this);
 
         if (savedInstanceState == null) {
             Intent intent = getIntent();
@@ -64,6 +57,10 @@ public class MainActivity extends AppCompatActivity {
     private void observeViewModel() {
         mainViewModel.getPlayerActivity().observe(this, playerActivity ->{
             if(playerActivity){
+                if(Boolean.TRUE.equals(mainViewModel.getStartService().getValue())){
+                    mainViewModel.setStartService(false);
+                    startService(new Intent(MainActivity.this, MusicService.class));
+                }
                 mainViewModel.setPlayerActivity(false);
                 Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
                 startActivity(putExtra(intent));
@@ -93,40 +90,6 @@ public class MainActivity extends AppCompatActivity {
         intent.putExtra("backgroundColour", mainViewModel.getBackgroundColourInt());
         intent.putExtra("playbackSpeed", mainViewModel.getPlaybackSpeed());
         return intent;
-    }
-
-    private void readMusicFromFolder() {
-        ListView lv = findViewById(R.id.listView);
-        Cursor cursor = getContentResolver().query(
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                null,
-                MediaStore.Audio.Media.IS_MUSIC + "!= 0",
-                null,
-                null
-        );
-
-        lv.setAdapter(new SimpleCursorAdapter(
-                this,
-                android.R.layout.simple_list_item_1,
-                cursor,
-                new String[]{MediaStore.Audio.Media.DATA},
-                new int[]{android.R.id.text1}
-        ));
-
-        lv.setOnItemClickListener((myAdapter, myView, myItemInt, myIng) -> {
-            Cursor c = (Cursor) lv.getItemAtPosition(myItemInt);
-            @SuppressLint("Range") String selectedMusicUri = c.getString(c.getColumnIndex(MediaStore.Audio.Media.DATA));
-
-            if(!isBound){
-                Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-                bindService(intent, serviceConnection, Context.BIND_AUTO_CREATE);
-            }
-
-            mainViewModel.onMusicSelected(selectedMusicUri);
-            startService(new Intent(MainActivity.this, MusicService.class));
-            Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
-            startActivity(putExtra(intent));
-        });
     }
 
     public ServiceConnection serviceConnection = new ServiceConnection() {

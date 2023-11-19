@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
 
         mainViewModel.getPlayerActivity().observe(this, playerActivity ->{
             if(playerActivity){
+                mainViewModel.setPlayerActivity(false);
                 Intent intent = new Intent(MainActivity.this, PlayerActivity.class);
                 startActivity(putExtra(intent));
             }
@@ -72,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
 
         mainViewModel.getSettingsActivity().observe(this, settingsActivity ->{
             if(settingsActivity){
+                mainViewModel.setSettingsActivity(false);
                 Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
                 resultLauncher.launch(putExtra(intent));
             }

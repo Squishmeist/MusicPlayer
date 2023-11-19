@@ -53,6 +53,14 @@ public class MainViewModel extends ViewModel {
         musicService = service;
     }
 
+    public void setPlayerActivity(Boolean isActive){
+        playerActivity.setValue(isActive);
+    }
+
+    public void setSettingsActivity(Boolean isActive){
+        settingsActivity.setValue(isActive);
+    }
+
     public void onMusicSelected(String musicUri){
         if (musicService != null) {
             musicService.loadMusic(musicUri);

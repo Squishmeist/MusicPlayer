@@ -45,6 +45,10 @@ public class PlayerViewModel extends ViewModel {
         this.playbackSpeed.setValue(String.valueOf(playbackSpeed));
     }
 
+    public void setListActivity(Boolean isActive){
+        listActivity.setValue(isActive);
+    }
+
     public void setMusicService(MusicService service) {
         musicService = service;
         serviceRunning.setValue(true);

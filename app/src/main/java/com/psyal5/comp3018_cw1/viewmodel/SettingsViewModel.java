@@ -1,7 +1,6 @@
 package com.psyal5.comp3018_cw1.viewmodel;
 
 import android.graphics.Color;
-import android.util.Log;
 
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -59,6 +58,10 @@ public class SettingsViewModel extends ViewModel {
         this.playbackSpeed.setValue(String.valueOf(playbackSpeed));
     }
 
+    public void setListActivity(Boolean isActive){
+        listActivity.setValue(isActive);
+    }
+
     public void setMusicService(MusicService service) {
         musicService = service;
     }
@@ -104,7 +107,6 @@ public class SettingsViewModel extends ViewModel {
     public void onUpdateButtonClick(){
         updateBackgroundColour();
         musicService.setPlayback(getPlaybackSpeedFloat());
-        Log.d("test", getPlaybackSpeed().getValue());
     }
 
 }

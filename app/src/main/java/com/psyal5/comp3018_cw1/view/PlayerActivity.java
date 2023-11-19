@@ -67,6 +67,7 @@ public class PlayerActivity extends AppCompatActivity {
 
         playerViewModel.getListActivity().observe(this, listActivity -> {
             if (listActivity) {
+                playerViewModel.setListActivity(false);
                 Intent intent = new Intent(PlayerActivity.this, MainActivity.class);
                 intent.putExtra("backgroundColour", playerViewModel.getBackgroundColourInt());
                 intent.putExtra("playbackSpeed", playerViewModel.getPlaybackSpeedFloat());
@@ -108,6 +109,7 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         Log.d(TAG, "OnStop called [Player]");
+        playerViewModel.setListActivity(false);
         super.onStop();
         if(isBound){
             unbindService(serviceConnection);

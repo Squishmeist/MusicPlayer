@@ -98,6 +98,7 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         Log.d(TAG, "OnStop called [Settings]");
+        settingsViewModel.setListActivity(false);
         super.onStop();
         if(isBound){
             unbindService(serviceConnection);

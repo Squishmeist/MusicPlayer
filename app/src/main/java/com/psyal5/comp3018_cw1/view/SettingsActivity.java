@@ -53,17 +53,16 @@ public class SettingsActivity extends AppCompatActivity {
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                Intent replyIntent = putExtra(new Intent());
-                setResult(RESULT_OK, replyIntent);
-                finish();
+                Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                startActivity(putExtra(intent));
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
     }
 
     private Intent putExtra(Intent intent){
-        intent.putExtra("returnedBackgroundColour", settingsViewModel.getBackgroundColourInt());
-        intent.putExtra("returnedPlaybackSpeed", settingsViewModel.getPlaybackSpeedFloat());
+        intent.putExtra("backgroundColour", settingsViewModel.getBackgroundColourInt());
+        intent.putExtra("playbackSpeed", settingsViewModel.getPlaybackSpeedFloat());
         return intent;
     }
 
@@ -76,9 +75,8 @@ public class SettingsActivity extends AppCompatActivity {
     }
 
     public void onListButtonClick(View v){
-        Intent replyIntent = putExtra(new Intent());
-        setResult(RESULT_OK, replyIntent);
-        finish();
+        Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+        startActivity(putExtra(intent));
     }
 
     public ServiceConnection serviceConnection = new ServiceConnection() {

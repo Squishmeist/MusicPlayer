@@ -1,7 +1,5 @@
 package com.psyal5.comp3018_cw1.view;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
@@ -28,7 +26,6 @@ public class MainActivity extends AppCompatActivity {
     private MainViewModel mainViewModel;
     private MusicService musicService;
     private boolean isBound = false;
-    ActivityResultLauncher<Intent> resultLauncher;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,16 +49,6 @@ public class MainActivity extends AppCompatActivity {
         binding.setLifecycleOwner(this);
 
         mainViewModel.readMusicFromFolder(this);
-
-        resultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-                result -> {
-                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
-                        Integer returnedBackgroundColour = result.getData().getIntExtra("returnedBackgroundColour", Color.WHITE);
-                        float returnedPlaybackSpeed = result.getData().getFloatExtra("returnedPlaybackSpeed", 1.0f);
-                        mainViewModel.setBackgroundColour(returnedBackgroundColour);
-                        mainViewModel.setPlaybackSpeed(returnedPlaybackSpeed);
-                    }
-                });
 
         if (savedInstanceState != null) {
             mainViewModel.setBackgroundColour(mainViewModel.getBackgroundColourInt());
@@ -103,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void onSettingsButtonClick(View v){
         Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-        resultLauncher.launch(putExtra(intent));
+        startActivity(putExtra(intent));
     }
 
     public ServiceConnection serviceConnection = new ServiceConnection() {

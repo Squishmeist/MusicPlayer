@@ -7,27 +7,67 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.Objects;
 
+/**
+ * SettingsViewModel: ViewModel for managing data related to the SettingsActivity.
+ */
 public class SettingsViewModel extends ViewModel {
+    // MutableLiveData for background colour, playback speed, and RGB values
     private final MutableLiveData<Integer> backgroundColour = new MutableLiveData<>();
     private final MutableLiveData<String> playbackSpeed = new MutableLiveData<>();
     private final MutableLiveData<String> redValue = new MutableLiveData<>();
     private final MutableLiveData<String> greenValue = new MutableLiveData<>();
     private final MutableLiveData<String> blueValue = new MutableLiveData<>();
 
-    public int getBackgroundColourInt(){
+    /**
+     * Getter method for retrieving the background colour as an integer.
+     * @return The background colour as an integer.
+     */
+    public int getBackgroundColourInt() {
         return Objects.requireNonNull(backgroundColour.getValue());
     }
-    public float getPlaybackSpeedFloat(){
+
+    /**
+     * Getter method for retrieving the playback speed as a float.
+     * @return The playback speed as a float.
+     */
+    public float getPlaybackSpeedFloat() {
         return Float.parseFloat(Objects.requireNonNull(playbackSpeed.getValue()));
     }
 
-    public MutableLiveData<Integer> getBackgroundColour(){
+    /**
+     * Getter method for retrieving the MutableLiveData for background colour.
+     * @return MutableLiveData for background colour.
+     */
+    public MutableLiveData<Integer> getBackgroundColour() {
         return backgroundColour;
     }
+
+    /**
+     * Getter method for retrieving the MutableLiveData for playback speed.
+     * @return MutableLiveData for playback speed.
+     */
     public MutableLiveData<String> getPlaybackSpeed() {
         return playbackSpeed;
     }
 
+    /**
+     * Getter methods for retrieving the MutableLiveData for red, green, and blue values.
+     * @return MutableLiveData for red, green, and blue values.
+     */
+    public MutableLiveData<String> getRedValue() {
+        return redValue;
+    }
+    public MutableLiveData<String> getGreenValue() {
+        return greenValue;
+    }
+    public MutableLiveData<String> getBlueValue() {
+        return blueValue;
+    }
+
+    /**
+     * Setter method for updating the background colour based on RGB values.
+     * @param backgroundColour The new background colour.
+     */
     public void setBackgroundColour(int backgroundColour) {
         int red = Color.red(backgroundColour);
         int green = Color.green(backgroundColour);
@@ -46,20 +86,19 @@ public class SettingsViewModel extends ViewModel {
             this.backgroundColour.setValue(backgroundColour);
         }
     }
-    public void setPlaybackSpeed(float playbackSpeed){
+
+    /**
+     * Setter method for updating the playback speed.
+     * @param playbackSpeed The new playback speed.
+     */
+    public void setPlaybackSpeed(float playbackSpeed) {
         this.playbackSpeed.setValue(String.valueOf(playbackSpeed));
     }
 
-    public MutableLiveData<String> getRedValue() {
-        return redValue;
-    }
-    public MutableLiveData<String> getGreenValue() {
-        return greenValue;
-    }
-    public MutableLiveData<String> getBlueValue() {
-        return blueValue;
-    }
-
+    /**
+     * Method for updating the background colour based on RGB values.
+     * Called when the "Update" button is clicked in the SettingsActivity.
+     */
     public void updateBackgroundColour() {
         int red = redValue.getValue() != null ? Integer.parseInt(redValue.getValue()) : 0;
         int green = greenValue.getValue() != null ? Integer.parseInt(greenValue.getValue()) : 0;
@@ -76,9 +115,15 @@ public class SettingsViewModel extends ViewModel {
             this.backgroundColour.setValue(colour);
         }
     }
-    public void updatePlaybackSpeed(){
+
+    /**
+     * Method for updating the playback speed.
+     * Called when the "Update" button is clicked in the SettingsActivity.
+     * Limits the playback speed to a maximum of 5.
+     */
+    public void updatePlaybackSpeed() {
         float speed = getPlaybackSpeedFloat();
-        if(speed > 5){
+        if (speed > 5) {
             speed = 1;
         }
         this.setPlaybackSpeed(speed);

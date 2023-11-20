@@ -15,19 +15,23 @@ import androidx.core.app.NotificationCompat;
 
 import com.psyal5.comp3018_cw1.R;
 
+/**
+ * MusicService: Service class responsible for managing music playback in the background.
+ */
 public class MusicService extends Service {
     private static final String CHANNEL_ID = "MusicChannel";
     private static final int NOTIFICATION_ID = 1;
     private NotificationManager notificationManager;
-    private static final String TAG ="CW1";
+    private static final String TAG = "CW1";
     public boolean isPlaying = false;
     private boolean stopPlaying = false;
     private final IBinder binder = new LocalBinder();
     private MP3Player mp3Player;
     private MusicCallback callback;
     private boolean showNotification = false;
+
     @Override
-    public void onCreate(){
+    public void onCreate() {
         Log.d(TAG, "On Create [Service]");
         super.onCreate();
         mp3Player = new MP3Player();
@@ -36,25 +40,26 @@ public class MusicService extends Service {
     }
 
     @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
+    public int onStartCommand(Intent intent, int flags, int startId) {
         Log.d(TAG, "onStartCommand [Service]");
-        if(isPlaying){
-            Log.d(TAG,"Music is already playing [Service]");
+        if (isPlaying) {
+            Log.d(TAG, "Music is already playing [Service]");
             return START_NOT_STICKY;
         }
 
         Log.d(TAG, "Start foreground called [Service]");
 
         new Thread(() -> {
-            try{
+            try {
                 isPlaying = true;
                 Log.d(TAG, "Music is playing [Service]");
-                while(!stopPlaying){
-                    if(!isPlaying){
+                while (!stopPlaying) {
+                    if (!isPlaying) {
                         stopForeground(true);
-                    } else{
-                        if(showNotification){
+                    } else {
+                        if (showNotification) {
                             Log.d(TAG, "Notification [Service]");
+                            // Create a notification when music is playing
                             Notification notification = new NotificationCompat.Builder(this, CHANNEL_ID)
                                     .setContentTitle("Music Service")
                                     .setContentText("Playing music")
@@ -65,11 +70,11 @@ public class MusicService extends Service {
                         }
                     }
                     Thread.sleep(1000);
-                    if(callback != null){
+                    if (callback != null) {
                         callback.onMusicProgress((int) getProgress());
                     }
                 }
-            }catch (InterruptedException e){
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             Log.d(TAG, "StopSelf() called [Service]");
@@ -82,9 +87,10 @@ public class MusicService extends Service {
         return START_NOT_STICKY;
     }
 
-    private void createNotificationChannel(){
+    // Create a notification channel for Android Oreo and above
+    private void createNotificationChannel() {
         Log.d(TAG, "createNotificationChannel called [Service]");
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = "Music Service";
             String description = "Used for playing music";
             int importance = NotificationManager.IMPORTANCE_HIGH;
@@ -95,14 +101,17 @@ public class MusicService extends Service {
         }
     }
 
-    public interface MusicCallback{
+    // Interface to provide a callback for music progress updates
+    public interface MusicCallback {
         void onMusicProgress(int progress);
     }
 
-    public void setCallback(MusicCallback callback){
-       this.callback = callback;
+    // Set the callback for music progress updates
+    public void setCallback(MusicCallback callback) {
+        this.callback = callback;
     }
 
+    // Binder class to provide the service to clients
     public class LocalBinder extends Binder {
         public MusicService getService() {
             return MusicService.this;
@@ -115,7 +124,8 @@ public class MusicService extends Service {
         return binder;
     }
 
-    public double getProgress(){
+    // Get the current progress of the music playback
+    public double getProgress() {
         // Calculate progress using the current position relative to the duration
         double progress = ((double) mp3Player.getProgress() / mp3Player.getDuration()) * 100;
         // Check if progress is close to 100% and stop music
@@ -126,7 +136,8 @@ public class MusicService extends Service {
         return progress;
     }
 
-    public void loadMusic(String musicUri, float speed){
+    // Load music for playback with the given URI and speed
+    public void loadMusic(String musicUri, float speed) {
         Log.d(TAG, "Load Music [Service]");
         mp3Player.stop();
         mp3Player.load(musicUri, speed);
@@ -135,6 +146,7 @@ public class MusicService extends Service {
         showNotification = true;
     }
 
+    // Play music with the given speed
     public void playMusic(float speed) {
         Log.d(TAG, "Play Music [Service]");
         mp3Player.play();
@@ -143,20 +155,23 @@ public class MusicService extends Service {
         showNotification = true;
     }
 
-    public void pauseMusic(){
+    // Pause the currently playing music
+    public void pauseMusic() {
         Log.d(TAG, "Pause Music [Service]");
         mp3Player.pause();
         isPlaying = false;
         showNotification = false;
     }
 
+    // Stop the currently playing music
     public void stopMusic() {
         Log.d(TAG, "Stop Music [Service]");
         mp3Player.stop();
         stopPlaying = true;
     }
 
-    public void setPlayback(float speed){
+    // Set the playback speed of the music
+    public void setPlayback(float speed) {
         mp3Player.setPlaybackSpeed(speed);
     }
 
@@ -168,7 +183,7 @@ public class MusicService extends Service {
     }
 
     @Override
-    public void onTaskRemoved(Intent rootIntent){
+    public void onTaskRemoved(Intent rootIntent) {
         Log.d(TAG, "onTaskRemoved [Service]]");
         stopSelf();
         stopForeground(true);

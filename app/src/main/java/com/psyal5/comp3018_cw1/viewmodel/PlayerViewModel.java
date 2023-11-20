@@ -5,36 +5,76 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.Objects;
 
+/**
+ * PlayerViewModel: ViewModel for managing data related to the PlayerActivity.
+ */
 public class PlayerViewModel extends ViewModel {
+    // MutableLiveData for background colour, playback speed, and playback progress
     private final MutableLiveData<Integer> backgroundColour = new MutableLiveData<>();
     private final MutableLiveData<String> playbackSpeed = new MutableLiveData<>();
     private final MutableLiveData<Integer> playbackProgress = new MutableLiveData<>();
 
-    public Integer getBackgroundColourInt(){
+    /**
+     * Getter method for retrieving the background colour as an integer.
+     * @return The background colour as an integer.
+     */
+    public Integer getBackgroundColourInt() {
         return Objects.requireNonNull(backgroundColour.getValue());
     }
-    public Float getPlaybackSpeedFloat(){
+
+    /**
+     * Getter method for retrieving the playback speed as a float.
+     * @return The playback speed as a float.
+     */
+    public Float getPlaybackSpeedFloat() {
         return Float.valueOf(Objects.requireNonNull(playbackSpeed.getValue()));
     }
 
-    public  MutableLiveData<Integer> getBackgroundColour(){
+    /**
+     * Getter method for retrieving the MutableLiveData for background colour.
+     * @return MutableLiveData for background colour.
+     */
+    public MutableLiveData<Integer> getBackgroundColour() {
         return backgroundColour;
     }
-    public  MutableLiveData<String> getPlaybackSpeed(){
+
+    /**
+     * Getter method for retrieving the MutableLiveData for playback speed.
+     * @return MutableLiveData for playback speed.
+     */
+    public MutableLiveData<String> getPlaybackSpeed() {
         return playbackSpeed;
     }
-    public MutableLiveData<Integer> getPlaybackProgress(){
+
+    /**
+     * Getter method for retrieving the MutableLiveData for playback progress.
+     * @return MutableLiveData for playback progress.
+     */
+    public MutableLiveData<Integer> getPlaybackProgress() {
         return playbackProgress;
     }
 
+    /**
+     * Setter method for updating the background colour.
+     * @param colour The new background colour.
+     */
     public void setBackgroundColour(int colour) {
         backgroundColour.setValue(colour);
     }
-    public void setPlaybackSpeed(float playbackSpeed){
+
+    /**
+     * Setter method for updating the playback speed.
+     * @param playbackSpeed The new playback speed.
+     */
+    public void setPlaybackSpeed(float playbackSpeed) {
         this.playbackSpeed.setValue(String.valueOf(playbackSpeed));
     }
+
+    /**
+     * Setter method for updating the playback progress.
+     * @param playbackProgress The new playback progress.
+     */
     public void setPlaybackProgress(Integer playbackProgress) {
         this.playbackProgress.setValue(playbackProgress);
     }
-
 }

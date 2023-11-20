@@ -54,11 +54,7 @@ public class SettingsActivity extends AppCompatActivity {
         binding.setSettingsViewModel(settingsViewModel);
         binding.setLifecycleOwner(this);
 
-        // Restore settings from savedInstanceState if available
-        if (savedInstanceState != null) {
-            settingsViewModel.setBackgroundColour(settingsViewModel.getBackgroundColourInt());
-            settingsViewModel.setPlaybackSpeed(settingsViewModel.getPlaybackSpeedFloat());
-        } else {
+        if (savedInstanceState == null) {
             // Handle the case when savedInstanceState is null (not a recreation due to rotation)
             Intent intent = getIntent();
             if (intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")) {

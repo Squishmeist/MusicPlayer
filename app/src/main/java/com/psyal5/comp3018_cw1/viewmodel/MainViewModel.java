@@ -2,6 +2,7 @@ package com.psyal5.comp3018_cw1.viewmodel;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.provider.MediaStore;
 
 import androidx.lifecycle.MutableLiveData;
@@ -9,7 +10,6 @@ import androidx.lifecycle.ViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * MainViewModel: ViewModel for managing data related to the MainActivity.
@@ -25,7 +25,13 @@ public class MainViewModel extends ViewModel {
      * @return The background colour as an integer.
      */
     public int getBackgroundColourInt() {
-        return Objects.requireNonNull(backgroundColour.getValue());
+        Integer colour = backgroundColour.getValue();
+        if (colour != null) {
+            return colour;
+        } else {
+            // Handle the case where colour is null
+            return Color.WHITE;
+        }
     }
 
     /**
@@ -33,7 +39,13 @@ public class MainViewModel extends ViewModel {
      * @return The playback speed as a float.
      */
     public float getPlaybackSpeedFloat() {
-        return Objects.requireNonNull(playbackSpeed.getValue());
+        Float speed = playbackSpeed.getValue();
+        if (speed != null) {
+            return speed;
+        } else {
+            // Handle the case where speed is null
+            return 1;
+        }
     }
 
     /**

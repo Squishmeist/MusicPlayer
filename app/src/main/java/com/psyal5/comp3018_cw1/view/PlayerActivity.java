@@ -54,14 +54,10 @@ public class PlayerActivity extends AppCompatActivity {
         binding.setPlayerViewModel(playerViewModel);
         binding.setLifecycleOwner(this);
 
-        // Restore settings from savedInstanceState if available
-        if (savedInstanceState != null) {
-            playerViewModel.setBackgroundColour(playerViewModel.getBackgroundColourInt());
-            playerViewModel.setPlaybackSpeed(playerViewModel.getPlaybackSpeedFloat());
-        } else {
+        if (savedInstanceState == null){
             // Handle the case when savedInstanceState is null (not a recreation due to rotation)
             Intent intent = getIntent();
-            if (intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")) {
+            if(intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")) {
                 int backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
                 float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
                 playerViewModel.setBackgroundColour(backgroundColour);

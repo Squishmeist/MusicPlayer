@@ -5,8 +5,6 @@ import android.graphics.Color;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import java.util.Objects;
-
 /**
  * SettingsViewModel: ViewModel for managing data related to the SettingsActivity.
  */
@@ -23,7 +21,13 @@ public class SettingsViewModel extends ViewModel {
      * @return The background colour as an integer.
      */
     public int getBackgroundColourInt() {
-        return Objects.requireNonNull(backgroundColour.getValue());
+        Integer colour = backgroundColour.getValue();
+        if (colour != null) {
+            return colour;
+        } else {
+            // Handle the case where colour is null
+            return Color.WHITE;
+        }
     }
 
     /**
@@ -31,7 +35,14 @@ public class SettingsViewModel extends ViewModel {
      * @return The playback speed as a float.
      */
     public float getPlaybackSpeedFloat() {
-        return Float.parseFloat(Objects.requireNonNull(playbackSpeed.getValue()));
+        String speed = playbackSpeed.getValue();
+        try {
+            return (speed != null) ? Float.parseFloat(speed) : 1.0f;
+        } catch (NumberFormatException e) {
+            // Handle the case where the string is not a valid float
+            System.err.println("Invalid float value. Returning default value.");
+            return 1.0f;
+        }
     }
 
     /**

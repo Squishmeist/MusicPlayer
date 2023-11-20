@@ -27,7 +27,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="44dp"
-                android:text="@string/playerText"
+                android:text="@string/listText"
                 android:textSize="50sp"
                 app:layout_constraintBottom_toTopOf="@+id/buttonBar"
                 app:layout_constraintEnd_toEndOf="parent"

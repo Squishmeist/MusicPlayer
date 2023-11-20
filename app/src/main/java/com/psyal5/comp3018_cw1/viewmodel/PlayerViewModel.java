@@ -1,9 +1,9 @@
 package com.psyal5.comp3018_cw1.viewmodel;
 
+import android.graphics.Color;
+
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
-
-import java.util.Objects;
 
 /**
  * PlayerViewModel: ViewModel for managing data related to the PlayerActivity.
@@ -18,16 +18,29 @@ public class PlayerViewModel extends ViewModel {
      * Getter method for retrieving the background colour as an integer.
      * @return The background colour as an integer.
      */
-    public Integer getBackgroundColourInt() {
-        return Objects.requireNonNull(backgroundColour.getValue());
+    public int getBackgroundColourInt() {
+        Integer colour = backgroundColour.getValue();
+        if (colour != null) {
+            return colour;
+        } else {
+            // Handle the case where colour is null
+            return Color.WHITE;
+        }
     }
 
     /**
      * Getter method for retrieving the playback speed as a float.
      * @return The playback speed as a float.
      */
-    public Float getPlaybackSpeedFloat() {
-        return Float.valueOf(Objects.requireNonNull(playbackSpeed.getValue()));
+    public float getPlaybackSpeedFloat() {
+        String speed = playbackSpeed.getValue();
+        try {
+            return (speed != null) ? Float.parseFloat(speed) : 1.0f;
+        } catch (NumberFormatException e) {
+            // Handle the case where the string is not a valid float
+            System.err.println("Invalid float value. Returning default value.");
+            return 1.0f;
+        }
     }
 
     /**

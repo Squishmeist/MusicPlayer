@@ -71,11 +71,7 @@ public class MainActivity extends AppCompatActivity {
         // Read music from folder
         mainViewModel.readMusicFromFolder(this);
 
-        // Restore settings from savedInstanceState if available
-        if (savedInstanceState != null) {
-            mainViewModel.setBackgroundColour(mainViewModel.getBackgroundColourInt());
-            mainViewModel.setPlaybackSpeed(mainViewModel.getPlaybackSpeedFloat());
-        } else {
+        if (savedInstanceState == null){
             // Handle the case when savedInstanceState is null (not a recreation due to rotation)
             Intent intent = getIntent();
             if(intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")){

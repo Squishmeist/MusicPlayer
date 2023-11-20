@@ -8,7 +8,7 @@
         <variable
             name="mainViewModel"
             type="com.psyal5.comp3018_cw1.viewmodel.MainViewModel" />
-            <import type="com.psyal5.comp3018_cw1.model.BindingAdapters" />
+        <import type="com.psyal5.comp3018_cw1.model.BindingAdapters" />
     </data>
 
     <RelativeLayout
@@ -43,8 +43,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/settingsText"
-                app:musicPaths="@{mainViewModel.musicPaths}"
-                app:onMusicItemSelected="@{mainViewModel.onMusicItemSelected}"/>
+                app:musicPaths="@{mainViewModel.musicPaths}" />
 
             <LinearLayout
                 android:id="@+id/buttonBar"
@@ -71,7 +70,7 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{() -> mainViewModel.onPlayerButtonClick() }"
+                    android:onClick="onPlayerButtonClick"
                     android:text="@string/playerText" />
 
                 <Button
@@ -79,7 +78,7 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{() -> mainViewModel.onSettingsButtonClick() }"
+                    android:onClick="onSettingsButtonClick"
                     android:text="@string/settingsText" />
             </LinearLayout>
 

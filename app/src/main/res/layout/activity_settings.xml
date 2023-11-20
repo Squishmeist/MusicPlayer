@@ -117,7 +117,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="1dp"
                         android:layout_marginBottom="4dp"
-                        android:onClick="@{() -> settingsViewModel.onUpdateButtonClick() }"
+                        android:onClick="onUpdateButtonClick"
                         android:text="@string/updateText" />
                 </LinearLayout>
             </ScrollView>
@@ -139,7 +139,7 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{() -> settingsViewModel.onListButtonClick() }"
+                    android:onClick="onListButtonClick"
                     android:text="@string/listText" />
 
                 <Button

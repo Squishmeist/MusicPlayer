@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,6 +23,7 @@ import com.psyal5.comp3018_cw1.viewmodel.SettingsViewModel;
 public class SettingsActivity extends AppCompatActivity {
     private static final String TAG = "CW1";
     private SettingsViewModel settingsViewModel;
+    private MusicService musicService;
     private boolean isBound = false;
 
     @Override
@@ -34,9 +36,11 @@ public class SettingsActivity extends AppCompatActivity {
         binding.setSettingsViewModel(settingsViewModel);
         binding.setLifecycleOwner(this);
 
-        observeViewModel();
-
-        if (savedInstanceState == null) {
+        if (savedInstanceState != null) {
+            settingsViewModel.setBackgroundColour(settingsViewModel.getBackgroundColourInt());
+            settingsViewModel.setPlaybackSpeed(settingsViewModel.getPlaybackSpeedFloat());
+        } else {
+            // Handle the case when savedInstanceState is null (i.e., not a recreation due to rotation)
             Intent intent = getIntent();
             if (intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")) {
                 int backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
@@ -45,27 +49,36 @@ public class SettingsActivity extends AppCompatActivity {
                 settingsViewModel.setPlaybackSpeed(playbackSpeed);
             }
         }
-    }
-
-    private void observeViewModel() {
-        settingsViewModel.getListActivity().observe(this, listActivity -> {
-            if (listActivity) {
-                Intent replyIntent = new Intent();
-                replyIntent.putExtra("returnedBackgroundColour", settingsViewModel.getBackgroundColourInt());
-                replyIntent.putExtra("returnedPlaybackSpeed", settingsViewModel.getPlaybackSpeedFloat());
-                setResult(RESULT_OK, replyIntent);
-                finish();
-            }
-        });
 
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                settingsViewModel.onListButtonClick();
+                Intent replyIntent = putExtra(new Intent());
+                setResult(RESULT_OK, replyIntent);
+                finish();
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
+    }
 
+    private Intent putExtra(Intent intent){
+        intent.putExtra("returnedBackgroundColour", settingsViewModel.getBackgroundColourInt());
+        intent.putExtra("returnedPlaybackSpeed", settingsViewModel.getPlaybackSpeedFloat());
+        return intent;
+    }
+
+    public void onUpdateButtonClick(View v){
+        settingsViewModel.updateBackgroundColour();
+        settingsViewModel.updatePlaybackSpeed();
+        if(musicService != null){
+            musicService.setPlayback(settingsViewModel.getPlaybackSpeedFloat());
+        }
+    }
+
+    public void onListButtonClick(View v){
+        Intent replyIntent = putExtra(new Intent());
+        setResult(RESULT_OK, replyIntent);
+        finish();
     }
 
     public ServiceConnection serviceConnection = new ServiceConnection() {
@@ -74,18 +87,15 @@ public class SettingsActivity extends AppCompatActivity {
             Log.d(TAG, "onServiceConnected [Player]");
             // Linking the service to musicService variable.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-            MusicService musicService = binder.getService();
+            musicService = binder.getService();
             Log.d(TAG, "isBound set to true [Player]");
             isBound = true; // Flag that the binding is successful.
-            settingsViewModel.setMusicService(musicService);
         }
         @Override // Triggered if the service unexpectedly disconnects
         public void onServiceDisconnected(ComponentName name) {
             isBound = false; // Flagging that the binding is no longer active.
-            settingsViewModel.setMusicService(null);
         }
     };
-
 
     @Override
     protected void onStart(){
@@ -98,7 +108,6 @@ public class SettingsActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         Log.d(TAG, "OnStop called [Settings]");
-        settingsViewModel.setListActivity(false);
         super.onStop();
         if(isBound){
             unbindService(serviceConnection);

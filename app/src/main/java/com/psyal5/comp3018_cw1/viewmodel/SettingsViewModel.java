@@ -5,13 +5,9 @@ import android.graphics.Color;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.psyal5.comp3018_cw1.model.MusicService;
-
 import java.util.Objects;
 
 public class SettingsViewModel extends ViewModel {
-    private MusicService musicService;
-    private final MutableLiveData<Boolean> listActivity = new MutableLiveData<>();
     private final MutableLiveData<Integer> backgroundColour = new MutableLiveData<>();
     private final MutableLiveData<String> playbackSpeed = new MutableLiveData<>();
     private final MutableLiveData<String> redValue = new MutableLiveData<>();
@@ -21,7 +17,6 @@ public class SettingsViewModel extends ViewModel {
     public int getBackgroundColourInt(){
         return Objects.requireNonNull(backgroundColour.getValue());
     }
-
     public float getPlaybackSpeedFloat(){
         return Float.parseFloat(Objects.requireNonNull(playbackSpeed.getValue()));
     }
@@ -29,9 +24,8 @@ public class SettingsViewModel extends ViewModel {
     public MutableLiveData<Integer> getBackgroundColour(){
         return backgroundColour;
     }
-
-    public MutableLiveData<Boolean> getListActivity(){
-        return listActivity;
+    public MutableLiveData<String> getPlaybackSpeed() {
+        return playbackSpeed;
     }
 
     public void setBackgroundColour(int backgroundColour) {
@@ -52,38 +46,21 @@ public class SettingsViewModel extends ViewModel {
             this.backgroundColour.setValue(backgroundColour);
         }
     }
-
-
     public void setPlaybackSpeed(float playbackSpeed){
         this.playbackSpeed.setValue(String.valueOf(playbackSpeed));
     }
 
-    public void setListActivity(boolean isActive){
-        listActivity.setValue(isActive);
-    }
-
-    public void setMusicService(MusicService service) {
-        musicService = service;
-    }
-
-
     public MutableLiveData<String> getRedValue() {
         return redValue;
     }
-
     public MutableLiveData<String> getGreenValue() {
         return greenValue;
     }
-
     public MutableLiveData<String> getBlueValue() {
         return blueValue;
     }
 
-    public MutableLiveData<String> getPlaybackSpeed() {
-        return playbackSpeed;
-    }
-
-    private void updateBackgroundColour() {
+    public void updateBackgroundColour() {
         int red = redValue.getValue() != null ? Integer.parseInt(redValue.getValue()) : 0;
         int green = greenValue.getValue() != null ? Integer.parseInt(greenValue.getValue()) : 0;
         int blue = blueValue.getValue() != null ? Integer.parseInt(blueValue.getValue()) : 0;
@@ -99,31 +76,11 @@ public class SettingsViewModel extends ViewModel {
             this.backgroundColour.setValue(colour);
         }
     }
-
-    private void updatePlaybackSpeed(){
+    public void updatePlaybackSpeed(){
         float speed = getPlaybackSpeedFloat();
-
         if(speed > 5){
             speed = 1;
         }
-
         this.setPlaybackSpeed(speed);
-
-        if(musicService != null){
-            if(musicService.isPlaying){
-                musicService.setPlayback(getPlaybackSpeedFloat());
-            }
-        }
-
     }
-
-    public void onListButtonClick(){
-        listActivity.setValue(true);
-    }
-
-    public void onUpdateButtonClick(){
-        updateBackgroundColour();
-        updatePlaybackSpeed();
-    }
-
 }

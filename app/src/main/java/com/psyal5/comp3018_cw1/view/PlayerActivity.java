@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 
 import com.psyal5.comp3018_cw1.R;
 import com.psyal5.comp3018_cw1.databinding.ActivityPlayerBinding;
@@ -22,6 +23,7 @@ import com.psyal5.comp3018_cw1.viewmodel.PlayerViewModel;
 public class PlayerActivity extends AppCompatActivity {
     private static final String TAG = "CW1";
     private PlayerViewModel playerViewModel;
+    private MusicService musicService;
     private boolean isBound = false;
 
     @Override
@@ -34,47 +36,62 @@ public class PlayerActivity extends AppCompatActivity {
         binding.setPlayerViewModel(playerViewModel);
         binding.setLifecycleOwner(this);
 
-        observeViewModel();
-
-        if (savedInstanceState == null) {
+        if (savedInstanceState != null) {
+            playerViewModel.setBackgroundColour(playerViewModel.getBackgroundColourInt());
+            playerViewModel.setPlaybackSpeed(playerViewModel.getPlaybackSpeedFloat());
+        } else {
+            // Handle the case when savedInstanceState is null (i.e., not a recreation due to rotation)
             Intent intent = getIntent();
-            if(intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")){
+            if (intent != null && intent.hasExtra("backgroundColour") && intent.hasExtra("playbackSpeed")) {
                 int backgroundColour = intent.getIntExtra("backgroundColour", Color.WHITE);
                 float playbackSpeed = intent.getFloatExtra("playbackSpeed", 1.0f);
                 playerViewModel.setBackgroundColour(backgroundColour);
                 playerViewModel.setPlaybackSpeed(playbackSpeed);
             }
         }
-    }
-    private void observeViewModel() {
-        playerViewModel.getServiceRunning().observe(this, serviceRunning -> {
-            if (!serviceRunning) {
-                stopService(new Intent(PlayerActivity.this, MusicService.class));
-                if(isBound){
-                    unbindService(serviceConnection);
-                    isBound = false;
-                }
-            }
-        });
-
-        playerViewModel.getListActivity().observe(this, listActivity -> {
-            if (listActivity) {
-                playerViewModel.setListActivity(false);
-                Intent intent = new Intent(PlayerActivity.this, MainActivity.class);
-                intent.putExtra("backgroundColour", playerViewModel.getBackgroundColourInt());
-                intent.putExtra("playbackSpeed", playerViewModel.getPlaybackSpeedFloat());
-                startActivity(intent);
-            }
-        });
 
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                playerViewModel.onListButtonClick();
+                Intent intent = new Intent(PlayerActivity.this, MainActivity.class);
+                startActivity(putExtra(intent));
             }
         };
         getOnBackPressedDispatcher().addCallback(this, callback);
     }
+
+    public void onPlayButtonClick(View v){
+        if (musicService != null) {
+            musicService.playMusic(playerViewModel.getPlaybackSpeedFloat());
+        }
+    }
+
+    public void onPauseButtonClick(View v){
+        musicService.pauseMusic();
+    }
+
+    public void onStopButtonClick(View v){
+        if (musicService != null) {
+            musicService.stopMusic();
+            stopService(new Intent(PlayerActivity.this, MusicService.class));
+            if(isBound){
+                unbindService(serviceConnection);
+                isBound = false;
+            }
+        }
+    }
+
+    public void onListButtonClick(View v){
+        Intent intent = new Intent(PlayerActivity.this, MainActivity.class);
+        startActivity(putExtra(intent));
+    }
+
+    private Intent putExtra(Intent intent){
+        intent.putExtra("backgroundColour", playerViewModel.getBackgroundColourInt());
+        intent.putExtra("playbackSpeed", playerViewModel.getPlaybackSpeedFloat());
+        return intent;
+    }
+
 
     public ServiceConnection serviceConnection = new ServiceConnection() {
         @Override  // Triggered when the service is successfully bound
@@ -82,16 +99,14 @@ public class PlayerActivity extends AppCompatActivity {
             Log.d(TAG, "onServiceConnected [Player]");
             // Linking the service to musicService variable.
             MusicService.LocalBinder binder = (MusicService.LocalBinder) service;
-            MusicService musicService = binder.getService();
+            musicService = binder.getService();
             Log.d(TAG, "isBound set to true [Player]");
             isBound = true; // Flag that the binding is successful.
-            playerViewModel.setMusicService(musicService);
             musicService.setCallback(progress -> runOnUiThread(() -> playerViewModel.setPlaybackProgress(progress)));
         }
         @Override // Triggered if the service unexpectedly disconnects
         public void onServiceDisconnected(ComponentName name) {
             isBound = false; // Flagging that the binding is no longer active.
-            playerViewModel.setMusicService(null);
         }
     };
 
@@ -106,7 +121,6 @@ public class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         Log.d(TAG, "OnStop called [Player]");
-        playerViewModel.setListActivity(false);
         super.onStop();
         if(isBound){
             unbindService(serviceConnection);

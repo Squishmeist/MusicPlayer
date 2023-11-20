@@ -76,6 +76,8 @@ public class MusicService extends Service {
             stopSelf();
             stopPlaying = true;
             isPlaying = true;
+            showNotification = false;
+            stopForeground(true);
         }).start();
         return START_NOT_STICKY;
     }
@@ -114,16 +116,8 @@ public class MusicService extends Service {
     }
 
     public double getProgress(){
-        int duration = mp3Player.getDuration();
-
-        // Check for division by zero
-        if (duration == 0) {
-            return 0.0;
-        }
-
         // Calculate progress using the current position relative to the duration
-        double progress = ((double) mp3Player.getProgress() / duration) * 100;
-
+        double progress = ((double) mp3Player.getProgress() / mp3Player.getDuration()) * 100;
         // Check if progress is close to 100% and stop music
         if (progress >= 99.9) {
             progress = 0;
@@ -136,6 +130,8 @@ public class MusicService extends Service {
         Log.d(TAG, "Load Music [Service]");
         mp3Player.stop();
         mp3Player.load(musicUri, speed);
+        isPlaying = false;
+        stopPlaying = false;
         showNotification = true;
     }
 

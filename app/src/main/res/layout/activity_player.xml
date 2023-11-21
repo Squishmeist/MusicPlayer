@@ -79,7 +79,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:background="@android:color/transparent"
-                    android:onClick="@{() -> playerViewModel.onPlayButtonClick() }"
+                    android:onClick="onPlayButtonClick"
                     android:src="@drawable/ic_play_foreground" />
 
                 <ImageButton
@@ -88,7 +88,7 @@
                     android:layout_height="60dp"
                     android:layout_marginStart="20dp"
                     android:background="@android:color/transparent"
-                    android:onClick="@{() -> playerViewModel.onPauseButtonClick() }"
+                    android:onClick="onPauseButtonClick"
                     android:src="@drawable/ic_pause_foreground" />
 
                 <ImageButton
@@ -97,7 +97,7 @@
                     android:layout_height="60dp"
                     android:layout_marginStart="20dp"
                     android:background="@android:color/transparent"
-                    android:onClick="@{() -> playerViewModel.onStopButtonClick() }"
+                    android:onClick="onStopButtonClick"
                     android:src="@drawable/ic_stop_foreground" />
 
             </LinearLayout>
@@ -120,7 +120,7 @@
                     style="?android:attr/buttonBarButtonStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="@{() -> playerViewModel.onListButtonClick() }"
+                    android:onClick="onListButtonClick"
                     android:text="@string/listText" />
 
                 <Button

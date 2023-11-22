@@ -150,7 +150,7 @@ public class SettingsViewModel extends ViewModel {
      */
     public void updatePlaybackSpeed() {
         float speed = getPlaybackSpeedFloat();
-        if (speed > 5) {
+        if (speed > 5 || speed < 1) {
             speed = 1;
         }
         setPlaybackSpeed(speed);
